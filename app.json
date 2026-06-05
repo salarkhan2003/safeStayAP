@@ -3,6 +3,7 @@
     "name": "SafeStay AP",
     "slug": "safestayap",
     "version": "1.0.0",
+    "jsEngine": "hermes",
     "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
