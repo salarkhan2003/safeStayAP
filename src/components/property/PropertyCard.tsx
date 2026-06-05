@@ -4,10 +4,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeStore } from '../../store/themeStore';
 import { Badge } from '../ui/Badge';
-import { BORDER_RADIUS, FONT_SIZE, SHADOW, SPACING } from '../../constants/theme';
+import { BORDER_RADIUS, FONT_SIZE, SPACING } from '../../constants/theme';
 import type { Property } from '../../types';
 
 interface PropertyCardProps {
@@ -36,22 +35,18 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onPress })
 
   return (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: c.card, ...SHADOW.md }]}
+      style={[styles.card, { backgroundColor: c.card, borderColor: c.border }]}
       onPress={handlePress}
-      activeOpacity={0.9}
+      activeOpacity={0.85}
       accessibilityRole="button"
       accessibilityLabel={`View details for ${property.name}`}
     >
-      {/* Image */}
+      {/* Image Container */}
       <View style={styles.imageContainer}>
         <Image
           source={{ uri: property.images[0] || 'https://picsum.photos/400/300' }}
           style={styles.image}
           resizeMode="cover"
-        />
-        <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.6)']}
-          style={StyleSheet.absoluteFill}
         />
         <View style={styles.imageOverlay}>
           <Badge
@@ -60,27 +55,28 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onPress })
             size="sm"
           />
           {property.verificationStatus === 'verified' && (
-            <View style={styles.verifiedBadge}>
-              <Ionicons name="shield-checkmark" size={14} color="#4CAF50" />
-              <Text style={styles.verifiedText}>Verified</Text>
+            <View style={[styles.verifiedBadge, { backgroundColor: c.success + '15', borderColor: c.success }]}>
+              <Ionicons name="shield-checkmark" size={12} color={c.success} />
+              <Text style={[styles.verifiedText, { color: c.success }]}>Verified</Text>
             </View>
           )}
-        </View>
-        <View style={styles.priceTag}>
-          <Text style={styles.priceText}>
-            ₹{property.priceRange.min.toLocaleString()}/mo
-          </Text>
         </View>
       </View>
 
       {/* Content */}
       <View style={styles.content}>
-        <Text style={[styles.name, { color: c.text }]} numberOfLines={1}>
-          {property.name}
-        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+          <Text style={[styles.name, { color: c.text }]} numberOfLines={1}>
+            {property.name}
+          </Text>
+          <Text style={[styles.priceText, { color: c.text }]}>
+            ₹{property.priceRange.min.toLocaleString()}/mo
+          </Text>
+        </View>
+
         <View style={styles.locationRow}>
-          <Ionicons name="location-outline" size={14} color={c.textMuted} />
-          <Text style={[styles.location, { color: c.textMuted }]} numberOfLines={1}>
+          <Ionicons name="location-outline" size={13} color={c.textSecondary} />
+          <Text style={[styles.location, { color: c.textSecondary }]} numberOfLines={1}>
             {property.address}, {property.city}
           </Text>
         </View>
@@ -88,36 +84,30 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onPress })
         {/* Stats Row */}
         <View style={styles.statsRow}>
           <View style={styles.stat}>
-            <Ionicons name="star" size={14} color="#FFC107" />
+            <Ionicons name="star" size={13} color="#FFC107" />
             <Text style={[styles.statText, { color: c.text }]}>
               {property.rating} ({property.reviewCount})
             </Text>
           </View>
           <View style={styles.stat}>
-            <Ionicons name="bed-outline" size={14} color={c.primary} />
+            <Ionicons name="bed-outline" size={13} color={c.textSecondary} />
             <Text style={[styles.statText, { color: c.textSecondary }]}>
-              {property.availableRooms} available
-            </Text>
-          </View>
-          <View style={styles.stat}>
-            <Ionicons name="people-outline" size={14} color={c.primary} />
-            <Text style={[styles.statText, { color: c.textSecondary }]}>
-              {property.totalRooms} rooms
+              {property.availableRooms} left
             </Text>
           </View>
         </View>
 
         {/* Amenities */}
         <View style={styles.amenities}>
-          {property.amenities.slice(0, 4).map(amenity => (
-            <View key={amenity} style={[styles.amenityChip, { backgroundColor: c.primary + '15' }]}>
-              <Text style={[styles.amenityText, { color: c.primary }]}>{amenity}</Text>
+          {property.amenities.slice(0, 3).map(amenity => (
+            <View key={amenity} style={[styles.amenityChip, { backgroundColor: c.primaryLight }]}>
+              <Text style={[styles.amenityText, { color: c.textSecondary }]}>{amenity}</Text>
             </View>
           ))}
-          {property.amenities.length > 4 && (
-            <View style={[styles.amenityChip, { backgroundColor: c.border }]}>
+          {property.amenities.length > 3 && (
+            <View style={[styles.amenityChip, { backgroundColor: c.primaryLight }]}>
               <Text style={[styles.amenityText, { color: c.textMuted }]}>
-                +{property.amenities.length - 4}
+                +{property.amenities.length - 3}
               </Text>
             </View>
           )}
@@ -129,12 +119,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onPress })
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: BORDER_RADIUS.lg,
-    marginBottom: SPACING.md,
+    borderRadius: BORDER_RADIUS.md,
+    borderWidth: 1,
     overflow: 'hidden',
   },
   imageContainer: {
-    height: 180,
+    height: 150,
     position: 'relative',
   },
   image: {
@@ -143,63 +133,54 @@ const styles = StyleSheet.create({
   },
   imageOverlay: {
     position: 'absolute',
-    top: SPACING.sm,
-    left: SPACING.sm,
-    right: SPACING.sm,
+    top: 12,
+    left: 12,
+    right: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   verifiedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    borderRadius: BORDER_RADIUS.full,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 4,
+    borderRadius: BORDER_RADIUS.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     gap: 4,
+    borderWidth: 0.5,
   },
   verifiedText: {
-    color: '#4CAF50',
-    fontSize: FONT_SIZE.xs,
-    fontWeight: '600',
-  },
-  priceTag: {
-    position: 'absolute',
-    bottom: SPACING.sm,
-    right: SPACING.sm,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    borderRadius: BORDER_RADIUS.sm,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 4,
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.2,
   },
   priceText: {
-    color: '#ffffff',
-    fontSize: FONT_SIZE.sm,
-    fontWeight: '700',
+    fontSize: FONT_SIZE.base,
+    fontWeight: '800',
   },
   content: {
-    padding: SPACING.md,
+    padding: 16,
   },
   name: {
-    fontSize: FONT_SIZE.lg,
-    fontWeight: '700',
-    marginBottom: 4,
+    fontSize: FONT_SIZE.base,
+    fontWeight: '800',
+    flex: 1,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginBottom: SPACING.sm,
+    marginTop: 6,
+    marginBottom: 12,
   },
   location: {
-    fontSize: FONT_SIZE.sm,
+    fontSize: FONT_SIZE.xs,
     flex: 1,
   },
   statsRow: {
     flexDirection: 'row',
-    gap: SPACING.md,
-    marginBottom: SPACING.sm,
+    gap: 16,
+    marginBottom: 12,
   },
   stat: {
     flexDirection: 'row',
@@ -208,20 +189,20 @@ const styles = StyleSheet.create({
   },
   statText: {
     fontSize: FONT_SIZE.xs,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   amenities: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: SPACING.xs,
+    gap: 6,
   },
   amenityChip: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 3,
-    borderRadius: BORDER_RADIUS.full,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: BORDER_RADIUS.sm,
   },
   amenityText: {
-    fontSize: FONT_SIZE.xs,
-    fontWeight: '500',
+    fontSize: FONT_SIZE.xs - 1,
+    fontWeight: '600',
   },
 });

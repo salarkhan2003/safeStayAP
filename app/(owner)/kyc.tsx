@@ -190,35 +190,7 @@ export default function OwnerKYCScreen() {
               </View>
             </Card>
 
-            {/* Sim Review / Action buttons */}
-            {user?.kycStatus === 'submitted' && (
-              <Card style={styles.simCard}>
-                <Text style={styles.simHeader}>AP Police Review Simulator</Text>
-                <Text style={styles.simDesc}>
-                  As NTR District Police Auditing authority, you can approve this physical check compliance request.
-                </Text>
-                <View style={styles.simBtnRow}>
-                  <TouchableOpacity
-                    style={[styles.simBtn, { backgroundColor: '#2E7D32' }]}
-                    onPress={() => {
-                      setUser({ ...user, kycStatus: 'verified', isVerified: true } as any);
-                      Alert.alert('Approved', 'Business KYC and PG details approved successfully!');
-                    }}
-                  >
-                    <Text style={styles.simBtnText}>Approve Badge</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.simBtn, { backgroundColor: '#D32F2F' }]}
-                    onPress={() => {
-                      setUser({ ...user, kycStatus: 'rejected', isVerified: false } as any);
-                      Alert.alert('Rejected', 'Business KYC rejected. Requiring owner re-submission.');
-                    }}
-                  >
-                    <Text style={styles.simBtnText}>Reject</Text>
-                  </TouchableOpacity>
-                </View>
-              </Card>
-            )}
+
 
             <Button title="Re-submit KYC / Reset Form" variant="outline" onPress={handleResetKyc} style={{ marginTop: SPACING.md }} />
           </View>
