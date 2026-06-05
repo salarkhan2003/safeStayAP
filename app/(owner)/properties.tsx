@@ -105,13 +105,13 @@ export default function OwnerPropertiesScreen() {
   return (
     <View style={[styles.container, { backgroundColor: c.background, paddingTop: insets.top }]}>
       <View style={[styles.header, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
-        <Text style={[styles.title, { color: c.text }]}>My Properties</Text>
+        <Text style={[styles.title, { color: c.text, flex: 1, marginRight: SPACING.sm }]} numberOfLines={1}>My Properties</Text>
         <Button
           title="Add Property"
           size="sm"
           leftIcon={<Ionicons name="add" size={16} color="#fff" />}
           onPress={() => {}}
-          style={{ paddingHorizontal: SPACING.md }}
+          style={{ paddingHorizontal: SPACING.md, flexShrink: 0 }}
         />
       </View>
 
