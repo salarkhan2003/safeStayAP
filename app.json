@@ -1,0 +1,63 @@
+{
+  "expo": {
+    "name": "SafeStay AP",
+    "slug": "safestayap",
+    "version": "1.0.0",
+    "sdkVersion": "54.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a237e"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.safestayap.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundColor": "#1a237e"
+      },
+      "package": "com.safestayap.app",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.VIBRATE",
+        "android.permission.RECEIVE_BOOT_COMPLETED"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow SafeStay AP to access your camera for QR check-in."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow SafeStay AP to access your photos for document upload."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#1a237e"
+        }
+      ]
+    ],
+    "scheme": "safestayap",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
