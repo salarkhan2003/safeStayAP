@@ -139,6 +139,37 @@ export const propertiesApi = {
       currentGuestIds: [],
     }));
   },
+
+  create: async (data: Partial<Property>): Promise<Property> => {
+    await delay(1000);
+    const newProperty: Property = {
+      id: `prop_${Date.now()}`,
+      ownerId: data.ownerId || 'owner_001',
+      name: data.name || '',
+      type: data.type || 'pg',
+      description: data.description || 'Verified accommodation in Andhra Pradesh.',
+      address: data.address || '',
+      city: data.city || '',
+      state: data.state || 'Andhra Pradesh',
+      pincode: data.pincode || '',
+      latitude: data.latitude || 16.5062,
+      longitude: data.longitude || 80.6480,
+      totalRooms: data.totalRooms || 0,
+      availableRooms: data.totalRooms || 0,
+      priceRange: data.priceRange || { min: 0, max: 0 },
+      rating: 0,
+      reviewCount: 0,
+      amenities: data.amenities || [],
+      rules: data.rules || ['No smoking', 'Maintain silence after 10 PM'],
+      images: data.images || ['https://images.unsplash.com/photo-1555854877-bab0e564b8d5'],
+      status: 'active',
+      verificationStatus: 'pending',
+      contactPhone: data.contactPhone || '9999999999',
+      createdAt: new Date().toISOString(),
+    };
+    mockProperties.unshift(newProperty);
+    return newProperty;
+  },
 };
 
 // ─── Bookings API ─────────────────────────────────────────────────────────────

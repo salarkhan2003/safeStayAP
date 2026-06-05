@@ -45,6 +45,14 @@ export default function OwnerGuestsScreen() {
     },
   });
 
+  const cancelMutation = useMutation({
+    mutationFn: bookingsApi.cancel,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-bookings-owner'] });
+      Alert.alert('Declined', 'Booking request has been declined.');
+    },
+  });
+
   const checkInMutation = useMutation({
     mutationFn: bookingsApi.checkIn,
     onSuccess: () => {
@@ -117,7 +125,7 @@ export default function OwnerGuestsScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.actionBtn, { backgroundColor: c.error + '15', borderColor: c.error }]}
-                onPress={() => bookingsApi.cancel(booking.id)}
+                onPress={() => cancelMutation.mutate(booking.id)}
               >
                 <Ionicons name="close" size={16} color={c.error} />
                 <Text style={[styles.actionText, { color: c.error }]}>Decline</Text>

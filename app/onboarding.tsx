@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../src/store/authStore';
+import { useLangStore } from '../src/store/langStore';
 import { Button } from '../src/components/ui/Button';
 import { FONT_SIZE, SPACING } from '../src/constants/theme';
 
@@ -48,6 +49,7 @@ export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const { setOnboardingComplete } = useAuthStore();
+  const { language, setLanguage, t } = useLangStore();
 
   const handleNext = () => {
     if (currentIndex < slides.length - 1) {
@@ -60,12 +62,25 @@ export default function OnboardingScreen() {
 
   const handleGetStarted = () => {
     setOnboardingComplete();
-    router.replace('/(auth)/login');
+    router.replace('/(auth)/role-select');
   };
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
+      <View style={styles.langSelector}>
+        {['en', 'te', 'hi'].map((lang) => (
+          <TouchableOpacity
+            key={lang}
+            style={[styles.langBtn, language === lang && styles.langBtnActive]}
+            onPress={() => setLanguage(lang as any)}
+          >
+            <Text style={[styles.langText, language === lang && styles.langTextActive]}>
+              {lang.toUpperCase()}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
       <FlatList
         ref={flatListRef}
         data={slides}
@@ -80,10 +95,14 @@ export default function OnboardingScreen() {
             style={styles.slide}
           >
             <View style={styles.iconContainer}>
-              <Ionicons name={item.icon as any} size={100} color="rgba(255,255,255,0.9)" />
+              {item.id === '1' ? (
+                <Image source={require('../assets/logo.jpeg')} style={{ width: '100%', height: '100%', borderRadius: 90 }} resizeMode="cover" />
+              ) : (
+                <Ionicons name={item.icon as any} size={100} color="rgba(255,255,255,0.9)" />
+              )}
             </View>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.subtitle}>{item.subtitle}</Text>
+            <Text style={styles.title}>{item.id === '1' ? t('welcome') : item.title}</Text>
+            <Text style={styles.subtitle}>{item.id === '1' ? t('subtitle') : item.subtitle}</Text>
           </LinearGradient>
         )}
       />
@@ -131,6 +150,33 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  langSelector: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+    flexDirection: 'row',
+    gap: 8,
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    borderRadius: 20,
+    padding: 4,
+  },
+  langBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  langBtnActive: {
+    backgroundColor: '#fff',
+  },
+  langText: {
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  langTextActive: {
+    color: '#1a237e',
+  },
   slide: {
     width,
     flex: 1,

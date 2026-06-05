@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../src/store/authStore';
 import { useThemeStore } from '../../src/store/themeStore';
+import { useLangStore } from '../../src/store/langStore';
 import { Card } from '../../src/components/ui/Card';
 import { Badge } from '../../src/components/ui/Badge';
 import { BORDER_RADIUS, FONT_SIZE, SPACING } from '../../src/constants/theme';
@@ -41,8 +42,9 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, label, subtitle, onPress, ico
 };
 
 export default function OwnerSettingsScreen() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, resetAll } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
+  const { language, t } = useLangStore();
   const c = theme.colors;
   const insets = useSafeAreaInsets();
 
@@ -58,6 +60,24 @@ export default function OwnerSettingsScreen() {
         },
       },
     ]);
+  };
+
+  const handleResetApp = () => {
+    Alert.alert(
+      'Reset Entire App',
+      'This will delete all saved data, log you out, and reset the application to its initial state. Are you sure?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset App',
+          style: 'destructive',
+          onPress: async () => {
+            await resetAll();
+            router.replace('/onboarding');
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -77,7 +97,7 @@ export default function OwnerSettingsScreen() {
           <Text style={styles.name}>{user?.name}</Text>
           <Text style={styles.phone}>{user?.phone}</Text>
           <View style={styles.badgeRow}>
-            <Badge label="Property Owner" variant="info" size="sm" />
+            <Badge label={t('owner')} variant="info" size="sm" />
             {user?.isVerified && (
               <Badge label="Verified" variant="success" size="sm" />
             )}
@@ -88,8 +108,8 @@ export default function OwnerSettingsScreen() {
       {/* Stats Row */}
       <View style={[styles.statsRow, { backgroundColor: c.surface }]}>
         {[
-          { label: 'Properties', value: '4', icon: 'business' },
-          { label: 'Guests', value: '12', icon: 'people' },
+          { label: t('properties'), value: '4', icon: 'business' },
+          { label: t('guest'), value: '12', icon: 'people' },
           { label: 'Reviews', value: '4.3⭐', icon: 'star' },
         ].map(stat => (
           <View key={stat.label} style={styles.statItem}>
@@ -102,15 +122,15 @@ export default function OwnerSettingsScreen() {
       <View style={{ padding: SPACING.md }}>
         <Card style={styles.section}>
           <Text style={[styles.sectionTitle, { color: c.textMuted }]}>Account</Text>
-          <MenuItem icon="person-outline" label="Edit Profile" onPress={() => {}} />
+          <MenuItem icon="person-outline" label="Edit Profile" onPress={() => router.push('/(owner)/edit-profile')} />
           <MenuItem
             icon="shield-outline"
             label="KYC Verification"
             subtitle={`Status: ${user?.kycStatus}`}
-            onPress={() => {}}
+            onPress={() => router.push('/(owner)/kyc')}
           />
-          <MenuItem icon="document-text-outline" label="Business Documents" onPress={() => {}} />
-          <MenuItem icon="card-outline" label="Bank Account" subtitle="For payments" onPress={() => {}} />
+          <MenuItem icon="document-text-outline" label="Business Documents" onPress={() => router.push('/(owner)/documents')} />
+          <MenuItem icon="card-outline" label="Bank Account" subtitle="For payments" onPress={() => router.push('/(owner)/bank')} />
         </Card>
 
         <Card style={styles.section}>
@@ -118,7 +138,7 @@ export default function OwnerSettingsScreen() {
           <MenuItem icon="analytics-outline" label="Analytics" onPress={() => router.push('/(owner)/analytics')} />
           <MenuItem icon="people-outline" label="Staff Management" onPress={() => router.push('/(owner)/staff')} />
           <MenuItem icon="document-text-outline" label="Compliance Status" onPress={() => router.push('/(owner)/compliance')} />
-          <MenuItem icon="notifications-outline" label="Alert Settings" onPress={() => {}} />
+          <MenuItem icon="notifications-outline" label="Alert Settings" onPress={() => router.push('/(owner)/alert-settings')} />
         </Card>
 
         <Card style={styles.section}>
@@ -128,20 +148,24 @@ export default function OwnerSettingsScreen() {
             label={theme.isDark ? 'Light Mode' : 'Dark Mode'}
             onPress={toggleTheme}
           />
-          <MenuItem icon="language-outline" label="Language" subtitle="English" onPress={() => {}} />
-          <MenuItem icon="notifications-outline" label="Push Notifications" onPress={() => {}} />
+          <MenuItem icon="language-outline" label={t('language')} subtitle={language === 'en' ? 'English' : language === 'te' ? 'తెలుగు' : 'हिन्दी'} onPress={() => router.push('/(owner)/language')} />
+          <MenuItem icon="notifications-outline" label="Push Notifications" onPress={() => router.push('/(owner)/alert-settings')} />
         </Card>
 
         <Card style={styles.section}>
           <Text style={[styles.sectionTitle, { color: c.textMuted }]}>Support</Text>
-          <MenuItem icon="help-circle-outline" label="Help Center" onPress={() => {}} />
-          <MenuItem icon="chatbubble-outline" label="Contact Support" onPress={() => {}} />
-          <MenuItem icon="document-text-outline" label="Terms & Privacy" onPress={() => {}} />
-          <MenuItem icon="information-circle-outline" label="About" subtitle="SafeStay AP v1.0.0" onPress={() => {}} />
+          <MenuItem icon="help-circle-outline" label="Help Center" onPress={() => router.push('/(owner)/help')} />
+          <MenuItem icon="chatbubble-outline" label="Contact Support" onPress={() => router.push('/(owner)/support')} />
+          <MenuItem icon="document-text-outline" label="Terms & Privacy" onPress={() => router.push('/(owner)/terms')} />
+          <MenuItem icon="information-circle-outline" label="About" subtitle="SafeStay AP v1.0.0" onPress={() => router.push('/(owner)/about')} />
+        </Card>
+
+        <Card style={{ marginBottom: SPACING.md }}>
+          <MenuItem icon="log-out-outline" label={t('logout')} onPress={handleLogout} danger />
         </Card>
 
         <Card>
-          <MenuItem icon="log-out-outline" label="Logout" onPress={handleLogout} danger />
+          <MenuItem icon="refresh-outline" label="Reset Entire App" onPress={handleResetApp} danger />
         </Card>
 
         <Text style={[styles.version, { color: c.textMuted }]}>

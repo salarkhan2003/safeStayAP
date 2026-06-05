@@ -71,6 +71,18 @@ export default function OwnerLayout() {
       <Tabs.Screen name="staff" options={{ href: null }} />
       <Tabs.Screen name="compliance" options={{ href: null }} />
       <Tabs.Screen name="property/[id]" options={{ href: null }} />
+      <Tabs.Screen name="add-property" options={{ href: null }} />
+      <Tabs.Screen name="add-staff" options={{ href: null }} />
+      <Tabs.Screen name="edit-profile" options={{ href: null }} />
+      <Tabs.Screen name="kyc" options={{ href: null }} />
+      <Tabs.Screen name="documents" options={{ href: null }} />
+      <Tabs.Screen name="bank" options={{ href: null }} />
+      <Tabs.Screen name="alert-settings" options={{ href: null }} />
+      <Tabs.Screen name="help" options={{ href: null }} />
+      <Tabs.Screen name="support" options={{ href: null }} />
+      <Tabs.Screen name="terms" options={{ href: null }} />
+      <Tabs.Screen name="about" options={{ href: null }} />
+      <Tabs.Screen name="language" options={{ href: null }} />
     </Tabs>
   );
 }

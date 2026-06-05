@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity,
+  View, Text, StyleSheet, TouchableOpacity, Image,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,18 +16,14 @@ export default function RoleSelectScreen() {
 
   const handleSelectRole = (role: 'guest' | 'owner') => {
     setRole(role);
-    if (role === 'guest') {
-      router.replace('/(auth)/register');
-    } else {
-      router.replace('/(auth)/register');
-    }
+    router.push({ pathname: '/(auth)/role-entry', params: { role } });
   };
 
   return (
     <LinearGradient colors={['#1a237e', '#0d47a1', '#1565c0']} style={styles.container}>
       <View style={styles.header}>
         <View style={styles.logoRing}>
-          <Ionicons name="shield-checkmark" size={48} color="#ffffff" />
+          <Image source={require('../../assets/logo.jpeg')} style={{ width: '100%', height: '100%', borderRadius: 44 }} resizeMode="cover" />
         </View>
         <Text style={styles.title}>Who are you?</Text>
         <Text style={styles.subtitle}>
@@ -98,6 +94,29 @@ export default function RoleSelectScreen() {
           </LinearGradient>
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity
+        style={styles.skipBtn}
+        onPress={() => {
+          useAuthStore.setState({
+            isAuthenticated: true,
+            role: 'guest',
+            user: {
+              id: 'guest_explorer',
+              name: 'Guest Explorer',
+              phone: '+91 9999999999',
+              role: 'guest',
+              kycStatus: 'verified',
+              isVerified: true,
+              createdAt: new Date().toISOString(),
+              lastLogin: new Date().toISOString(),
+            }
+          });
+          router.replace('/(guest)/home');
+        }}
+      >
+        <Text style={styles.skipBtnText}>Skip Registration & Explore App →</Text>
+      </TouchableOpacity>
     </LinearGradient>
   );
 }
@@ -177,5 +196,16 @@ const styles = StyleSheet.create({
   },
   cardArrow: {
     alignItems: 'flex-end',
+  },
+  skipBtn: {
+    alignItems: 'center',
+    paddingVertical: SPACING.md,
+    marginTop: SPACING.md,
+  },
+  skipBtnText: {
+    color: 'rgba(255,255,255,0.8)',
+    fontSize: FONT_SIZE.base,
+    fontWeight: '700',
+    textDecorationLine: 'underline',
   },
 });

@@ -3,6 +3,7 @@ import {
   View, Text, StyleSheet, FlatList,
   TouchableOpacity, Alert,
 } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStore } from '../../src/store/themeStore';
 import { Header } from '../../src/components/ui/Header';
@@ -89,9 +90,6 @@ export default function StaffScreen() {
       <Header
         title="Staff Management"
         showBack
-        rightAction={
-          <Button title="Add Staff" size="sm" onPress={() => Alert.alert('Add Staff', 'Staff onboarding form coming soon')} />
-        }
       />
       <FlatList
         data={staff}
@@ -103,6 +101,13 @@ export default function StaffScreen() {
           <EmptyState icon="people-outline" title="No Staff Added" description="Add your property staff to manage them here." />
         }
       />
+
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: c.primary, shadowColor: '#000' }]}
+        onPress={() => router.push('/(owner)/add-staff')}
+      >
+        <Ionicons name="person-add" size={24} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -119,4 +124,18 @@ const styles = StyleSheet.create({
   staffActions: { flexDirection: 'row', gap: SPACING.sm, justifyContent: 'flex-end' },
   actionBtn: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs, borderRadius: BORDER_RADIUS.full, borderWidth: 1 },
   actionText: { fontSize: FONT_SIZE.sm, fontWeight: '600' },
+  fab: {
+    position: 'absolute',
+    bottom: SPACING.xl,
+    right: SPACING.xl,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
 });

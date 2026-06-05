@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, RefreshControl,
+  TouchableOpacity, RefreshControl, Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -96,7 +96,12 @@ export default function OwnerDashboardScreen() {
         <View style={styles.headerTop}>
           <View>
             <Text style={styles.greeting}>Property Dashboard</Text>
-            <Text style={styles.ownerName}>{user?.name}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={styles.ownerName}>{user?.name}</Text>
+              {user?.isVerified && (
+                <Ionicons name="checkmark-circle" size={20} color="#2196F3" />
+              )}
+            </View>
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.iconBtn} onPress={toggleTheme}>
@@ -130,6 +135,87 @@ export default function OwnerDashboardScreen() {
           </TouchableOpacity>
         )}
       </LinearGradient>
+
+      {/* Verification Status & Police Simulator */}
+      <View style={styles.verificationSection}>
+        <Card style={[
+          styles.verificationCard,
+          { 
+            borderColor: user?.kycStatus === 'verified' ? '#2E7D32' : user?.kycStatus === 'rejected' ? '#D32F2F' : '#0D47A1',
+            borderWidth: 1.5,
+          }
+        ]}>
+          <View style={styles.verificationRow}>
+            <View style={[styles.statusIconCircle, { backgroundColor: user?.kycStatus === 'verified' ? '#2E7D3220' : user?.kycStatus === 'rejected' ? '#D32F2F20' : '#0D47A120' }]}>
+              <Ionicons 
+                name={
+                  user?.kycStatus === 'verified' 
+                    ? 'shield-checkmark' 
+                    : user?.kycStatus === 'rejected' 
+                      ? 'close-circle' 
+                      : 'hourglass'
+                } 
+                size={28} 
+                color={
+                  user?.kycStatus === 'verified' 
+                    ? '#2E7D32' 
+                    : user?.kycStatus === 'rejected' 
+                      ? '#D32F2F' 
+                      : '#0D47A1'
+                } 
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Text style={[styles.verificationTitle, { color: c.text }]}>
+                  {user?.kycStatus === 'verified' && 'Status: Blue Verified Badge Approved'}
+                  {user?.kycStatus === 'rejected' && 'Status: Verification Rejected'}
+                  {user?.kycStatus === 'submitted' && 'Status: Pending Police Verification'}
+                  {(!user?.kycStatus || user?.kycStatus === 'pending') && 'Status: KYC Pending'}
+                </Text>
+                {user?.isVerified && (
+                  <Ionicons name="checkmark-circle" size={16} color="#2196F3" />
+                )}
+              </View>
+              <Text style={[styles.verificationSub, { color: c.textSecondary }]}>
+                {user?.kycStatus === 'verified' && 'Physical audit complete. Your official police verification is active.'}
+                {user?.kycStatus === 'rejected' && 'Document verification or physical check failed. Click Add Property to try again.'}
+                {user?.kycStatus === 'submitted' && 'Your documents are being reviewed. Physical verification by Vijayawada Police is pending.'}
+                {(!user?.kycStatus || user?.kycStatus === 'pending') && 'Please register your business license and property details.'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Admin Simulation Actions */}
+          <View style={[styles.simulatorRow, { borderTopColor: c.border }]}>
+            <Text style={[styles.simulatorLabel, { color: c.textMuted }]}>AP Police Review Simulator:</Text>
+            <View style={styles.simulatorButtons}>
+              <TouchableOpacity 
+                style={[styles.simBtn, { backgroundColor: '#2E7D32' }]} 
+                onPress={() => {
+                  useAuthStore.setState({
+                    user: { ...user!, kycStatus: 'verified', isVerified: true }
+                  });
+                  Alert.alert('Simulator Approved', 'Physical verification success! Blue Verified Badge active.');
+                }}
+              >
+                <Text style={styles.simBtnText}>Approve Badge</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.simBtn, { backgroundColor: '#D32F2F' }]} 
+                onPress={() => {
+                  useAuthStore.setState({
+                    user: { ...user!, kycStatus: 'rejected', isVerified: false }
+                  });
+                  Alert.alert('Simulator Rejected', 'Police verification status set to Rejected.');
+                }}
+              >
+                <Text style={styles.simBtnText}>Reject</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Card>
+      </View>
 
       {/* Stats Grid */}
       <View style={styles.statsGrid}>
@@ -306,4 +392,15 @@ const styles = StyleSheet.create({
   alertDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
   alertTitle: { fontSize: FONT_SIZE.sm, fontWeight: '600', marginBottom: 2 },
   alertTime: { fontSize: FONT_SIZE.xs },
+  verificationSection: { padding: SPACING.md, paddingTop: SPACING.md },
+  verificationCard: { padding: SPACING.md, gap: SPACING.md },
+  verificationRow: { flexDirection: 'row', alignItems: 'center', gap: SPACING.md },
+  statusIconCircle: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center' },
+  verificationTitle: { fontSize: FONT_SIZE.base, fontWeight: '700' },
+  verificationSub: { fontSize: FONT_SIZE.xs, marginTop: 2, lineHeight: 16 },
+  simulatorRow: { borderTopWidth: 1, paddingTop: SPACING.sm, marginTop: SPACING.xs, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  simulatorLabel: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase' },
+  simulatorButtons: { flexDirection: 'row', gap: SPACING.xs },
+  simBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: BORDER_RADIUS.sm },
+  simBtnText: { color: '#ffffff', fontSize: 11, fontWeight: '700' },
 });

@@ -6,10 +6,10 @@
     "jsEngine": "hermes",
     "sdkVersion": "54.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo.jpeg",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/logo.jpeg",
       "resizeMode": "contain",
       "backgroundColor": "#1a237e"
     },
@@ -19,7 +19,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/android-icon-foreground.png",
+        "foregroundImage": "./assets/logo.jpeg",
         "backgroundColor": "#1a237e"
       },
       "package": "com.safestayap.app",
@@ -30,7 +30,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png",
+      "favicon": "./assets/logo.jpeg",
       "bundler": "metro"
     },
     "plugins": [
@@ -51,7 +51,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/icon.png",
+          "icon": "./assets/logo.jpeg",
           "color": "#1a237e"
         }
       ]
@@ -59,6 +59,11 @@
     "scheme": "safestayap",
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f78c2d83-6e1a-480e-ae07-ead29af7aad8"
+      }
     }
   }
 }

@@ -74,7 +74,12 @@ export default function GuestHomeScreen() {
             <Text style={styles.greeting}>
               {new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 17 ? 'Good Afternoon' : 'Good Evening'} 👋
             </Text>
-            <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
+              {user?.isVerified && (
+                <Ionicons name="checkmark-circle" size={18} color="#2196F3" />
+              )}
+            </View>
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity

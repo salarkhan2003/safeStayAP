@@ -14,7 +14,7 @@ export default function Index() {
       if (!hasCompletedOnboarding) {
         router.replace('/onboarding');
       } else if (!isAuthenticated) {
-        router.replace('/(auth)/login');
+        router.replace('/(auth)/role-select');
       } else if (role === 'guest') {
         router.replace('/(guest)/home');
       } else if (role === 'owner') {

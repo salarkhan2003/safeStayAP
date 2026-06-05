@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  TouchableOpacity, KeyboardAvoidingView, Platform, Alert,
+  TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Image,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -70,7 +70,7 @@ export default function LoginScreen() {
           style={styles.hero}
         >
           <View style={styles.logoContainer}>
-            <Ionicons name="shield-checkmark" size={56} color="#ffffff" />
+            <Image source={require('../../assets/logo.jpeg')} style={{ width: '100%', height: '100%', borderRadius: 48 }} resizeMode="cover" />
           </View>
           <Text style={styles.appName}>SafeStay AP</Text>
           <Text style={styles.tagline}>Safe. Verified. Connected.</Text>

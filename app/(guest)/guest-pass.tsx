@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  View, Text, StyleSheet, ScrollView,
+  View, Text, StyleSheet, ScrollView, Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -85,7 +85,7 @@ export default function GuestPassScreen() {
           {/* Header */}
           <View style={styles.passHeader}>
             <View style={styles.passLogo}>
-              <Ionicons name="shield-checkmark" size={24} color="#ffffff" />
+              <Image source={require('../../assets/logo.jpeg')} style={{ width: '100%', height: '100%', borderRadius: 22 }} resizeMode="cover" />
             </View>
             <View>
               <Text style={styles.passAppName}>SafeStay AP</Text>

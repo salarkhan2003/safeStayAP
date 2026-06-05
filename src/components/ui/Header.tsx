@@ -13,6 +13,7 @@ interface HeaderProps {
   title: string;
   subtitle?: string;
   showBack?: boolean;
+  onBack?: () => void;
   rightAction?: React.ReactNode;
   transparent?: boolean;
 }
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   title,
   subtitle,
   showBack = false,
+  onBack,
   rightAction,
   transparent = false,
 }) => {
@@ -48,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({
       <View style={styles.content}>
         {showBack && (
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPress={onBack || (() => router.back())}
             style={styles.backButton}
             accessibilityLabel="Go back"
             accessibilityRole="button"

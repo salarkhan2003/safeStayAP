@@ -106,12 +106,6 @@ export default function OwnerPropertiesScreen() {
     <View style={[styles.container, { backgroundColor: c.background, paddingTop: insets.top }]}>
       <View style={[styles.header, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
         <Text style={[styles.title, { color: c.text, flexShrink: 1, marginRight: SPACING.sm }]} numberOfLines={1}>My Properties</Text>
-        <Button
-          title="Add Property"
-          size="sm"
-          leftIcon={<Ionicons name="add" size={16} color="#fff" />}
-          onPress={() => {}}
-        />
       </View>
 
       {isLoading ? (
@@ -137,6 +131,13 @@ export default function OwnerPropertiesScreen() {
           }
         />
       )}
+
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: c.primary, shadowColor: '#000' }]}
+        onPress={() => router.push('/(owner)/add-property')}
+      >
+        <Ionicons name="add" size={28} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -166,4 +167,18 @@ const styles = StyleSheet.create({
   occupancyLabel: { fontSize: FONT_SIZE.xs },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   ratingText: { fontSize: FONT_SIZE.sm },
+  fab: {
+    position: 'absolute',
+    bottom: SPACING.xl,
+    right: SPACING.xl,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
 });

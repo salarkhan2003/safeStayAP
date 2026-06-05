@@ -29,6 +29,7 @@ export default function BookingDetailScreen() {
     mutationFn: bookingsApi.cancel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['booking', id] });
       Alert.alert('Cancelled', 'Booking has been cancelled.', [{ text: 'OK', onPress: () => router.back() }]);
     },
   });

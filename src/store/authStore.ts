@@ -20,6 +20,7 @@ interface AuthActions {
   setRole: (role: UserRole) => void;
   initSession: () => Promise<void>;
   setOnboardingComplete: () => void;
+  resetAll: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState & AuthActions>((set, _get) => ({
@@ -58,6 +59,18 @@ export const useAuthStore = create<AuthState & AuthActions>((set, _get) => ({
   setOnboardingComplete: () => {
     set({ hasCompletedOnboarding: true });
     appStorage.setOnboardingComplete();
+  },
+
+  resetAll: async () => {
+    await appStorage.clearAll();
+    await secureStorage.deleteToken();
+    set({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      role: null,
+      hasCompletedOnboarding: false,
+    });
   },
 
   initSession: async () => {

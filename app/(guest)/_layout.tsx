@@ -86,6 +86,11 @@ export default function GuestLayout() {
       <Tabs.Screen name="emergency-contacts" options={{ href: null }} />
       <Tabs.Screen name="guest-pass" options={{ href: null }} />
       <Tabs.Screen name="booking/[id]" options={{ href: null }} />
+      <Tabs.Screen name="edit-profile" options={{ href: null }} />
+      <Tabs.Screen name="help" options={{ href: null }} />
+      <Tabs.Screen name="terms" options={{ href: null }} />
+      <Tabs.Screen name="about" options={{ href: null }} />
+      <Tabs.Screen name="language" options={{ href: null }} />
     </Tabs>
   );
 }

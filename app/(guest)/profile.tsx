@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../src/store/authStore';
 import { useThemeStore } from '../../src/store/themeStore';
+import { useLangStore } from '../../src/store/langStore';
 import { Badge } from '../../src/components/ui/Badge';
 import { Card } from '../../src/components/ui/Card';
 import { BORDER_RADIUS, FONT_SIZE, SPACING } from '../../src/constants/theme';
@@ -42,8 +43,9 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, label, subtitle, onPress, ico
 };
 
 export default function GuestProfileScreen() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, resetAll } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
+  const { language, t } = useLangStore();
   const c = theme.colors;
   const insets = useSafeAreaInsets();
 
@@ -59,6 +61,24 @@ export default function GuestProfileScreen() {
         },
       },
     ]);
+  };
+
+  const handleResetApp = () => {
+    Alert.alert(
+      'Reset Entire App',
+      'This will delete all saved data, log you out, and reset the application to its initial state. Are you sure?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset App',
+          style: 'destructive',
+          onPress: async () => {
+            await resetAll();
+            router.replace('/onboarding');
+          },
+        },
+      ]
+    );
   };
 
   const kycBadgeConfig = {
@@ -121,7 +141,7 @@ export default function GuestProfileScreen() {
       <View style={{ padding: SPACING.md }}>
         <Card style={styles.menuSection}>
           <Text style={[styles.sectionTitle, { color: c.textMuted }]}>Account</Text>
-          <MenuItem icon="person-outline" label="Edit Profile" onPress={() => {}} />
+          <MenuItem icon="person-outline" label="Edit Profile" onPress={() => router.push('/(guest)/edit-profile')} />
           <MenuItem
             icon="shield-outline"
             label="KYC Verification"
@@ -146,21 +166,30 @@ export default function GuestProfileScreen() {
             onPress={toggleTheme}
           />
           <MenuItem icon="notifications-outline" label="Notifications" onPress={() => router.push('/(guest)/notifications')} />
-          <MenuItem icon="language-outline" label="Language" subtitle="English" onPress={() => {}} />
+          <MenuItem icon="language-outline" label={t('language')} subtitle={language === 'en' ? 'English' : language === 'te' ? 'తెలుగు' : 'हिन्दी'} onPress={() => router.push('/(guest)/language')} />
         </Card>
 
         <Card style={styles.menuSection}>
           <Text style={[styles.sectionTitle, { color: c.textMuted }]}>App</Text>
-          <MenuItem icon="help-circle-outline" label="Help & Support" onPress={() => {}} />
-          <MenuItem icon="document-text-outline" label="Terms & Privacy" onPress={() => {}} />
-          <MenuItem icon="information-circle-outline" label="About" subtitle="SafeStay AP v1.0.0" onPress={() => {}} />
+          <MenuItem icon="help-circle-outline" label="Help & Support" onPress={() => router.push('/(guest)/help')} />
+          <MenuItem icon="document-text-outline" label="Terms & Privacy" onPress={() => router.push('/(guest)/terms')} />
+          <MenuItem icon="information-circle-outline" label="About" subtitle="SafeStay AP v1.0.0" onPress={() => router.push('/(guest)/about')} />
+        </Card>
+
+        <Card style={{ marginBottom: SPACING.md }}>
+          <MenuItem
+            icon="log-out-outline"
+            label={t('logout')}
+            onPress={handleLogout}
+            danger
+          />
         </Card>
 
         <Card>
           <MenuItem
-            icon="log-out-outline"
-            label="Logout"
-            onPress={handleLogout}
+            icon="refresh-outline"
+            label="Reset Entire App"
+            onPress={handleResetApp}
             danger
           />
         </Card>
