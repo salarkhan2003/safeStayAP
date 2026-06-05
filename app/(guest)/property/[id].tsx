@@ -4,6 +4,7 @@ import {
   Image, TouchableOpacity, Alert, Modal, FlatList, TextInput,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -21,6 +22,7 @@ export default function PropertyDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuthStore();
   const { theme } = useThemeStore();
+  const insets = useSafeAreaInsets();
   const c = theme.colors;
   const queryClient = useQueryClient();
 
@@ -304,7 +306,7 @@ export default function PropertyDetailScreen() {
     <View style={[styles.container, { backgroundColor: c.background }]}>
       <Header title="SafeStay Booking Details" showBack />
       
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, { paddingBottom: 100 + (insets?.bottom || 0) }]}>
         
         {/* Photos Carousels */}
         <View style={styles.imageSection}>
@@ -723,7 +725,7 @@ export default function PropertyDetailScreen() {
       </ScrollView>
 
       {/* Footer Book Button */}
-      <View style={[styles.footer, { backgroundColor: c.surface, borderTopColor: c.border }]}>
+      <View style={[styles.footer, { backgroundColor: c.surface, borderTopColor: c.border, paddingBottom: insets?.bottom || 12, height: 70 + (insets?.bottom || 0) }]}>
         <View style={styles.footerInfo}>
           <Text style={[styles.footerPriceLabel, { color: c.textMuted }]}>TOTAL PAYABLE</Text>
           <Text style={[styles.footerPriceValue, { color: c.text }]}>₹{totalPayable.toLocaleString()}</Text>

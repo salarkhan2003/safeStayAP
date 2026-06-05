@@ -3,10 +3,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useThemeStore } from '../../src/store/themeStore';
 import { useAuthStore } from '../../src/store/authStore';
 import { Redirect } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function GuestLayout() {
   const { theme } = useThemeStore();
   const { isAuthenticated, role } = useAuthStore();
+  const insets = useSafeAreaInsets();
   const c = theme.colors;
 
   if (!isAuthenticated) return <Redirect href="/(auth)/login" />;
@@ -22,8 +24,8 @@ export default function GuestLayout() {
           backgroundColor: c.surface,
           borderTopColor: c.border,
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
+          height: 60 + insets.bottom,
+          paddingBottom: 8 + insets.bottom,
           paddingTop: 4,
         },
         tabBarLabelStyle: {
