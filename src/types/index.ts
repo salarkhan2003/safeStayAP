@@ -120,7 +120,43 @@ export interface Booking {
   approvedAt?: string;
   checkedInAt?: string;
   checkedOutAt?: string;
+  coGuests?: CoGuest[];
 }
+
+// ─── Multi-Guest Booking & Co-Guest Verification ──────────────────────────────
+
+export type CoGuestStatus = 'invited' | 'pending' | 'accepted' | 'declined' | 'expired';
+
+export interface CoGuest {
+  id: string;
+  bookingId: string;
+  name: string;
+  phone: string;
+  relationship: string;
+  idType: 'aadhaar' | 'pan' | 'passport' | 'voter_id' | 'driving_license';
+  idNumber: string;
+  photoUrl?: string;
+  idDocUrl?: string;
+  status: CoGuestStatus;
+  invitedAt: string;
+  invitationExpiry: string;
+  resendCount: number;
+  isManualUpload: boolean;
+  watchlistStatus: 'clear' | 'flagged' | 'pending';
+  watchlistMatchNotes?: string;
+}
+
+export interface SavedTraveler {
+  id: string;
+  userId: string; // The primary guest who saved them
+  name: string;
+  phone: string;
+  relationship: string;
+  idType: 'aadhaar' | 'pan' | 'passport' | 'voter_id' | 'driving_license';
+  idNumber: string;
+  photoUrl?: string;
+}
+
 
 // ─── Notification ────────────────────────────────────────────────────────────
 

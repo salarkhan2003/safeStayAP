@@ -199,13 +199,57 @@ export default function OwnerRegisterScreen() {
           ))}
         </View>
 
-        <Text style={[styles.stepTitle, { color: c.text }]}>
-          {step === 1 && 'Step 1: Owner Details'}
-          {step === 2 && 'Step 2: Property Details'}
-          {step === 3 && 'Step 3: Property Information'}
-          {step === 4 && 'Step 4: Documents Upload'}
-          {step === 5 && 'Step 5: Submission'}
-        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: SPACING.sm, paddingHorizontal: 4 }}>
+          <Text style={[styles.stepTitle, { color: c.text, textAlign: 'left', flex: 1 }]}>
+            {step === 1 && 'Step 1: Owner Details'}
+            {step === 2 && 'Step 2: Property Details'}
+            {step === 3 && 'Step 3: Property Information'}
+            {step === 4 && 'Step 4: Documents Upload'}
+            {step === 5 && 'Step 5: Submission'}
+          </Text>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: c.primary + '15',
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: c.primary + '30',
+            }}
+            onPress={() => {
+              setForm({
+                ownerName: 'Venkata Ramana',
+                phone: '9988776655',
+                otp: '123456',
+                email: 'ramana.properties@gmail.com',
+                aadhaarPan: 'BCDPV1234M',
+                ownerPhoto: 'owner_portrait.jpg',
+                propertyName: 'Sri Lakshmi Co-Living Mansion',
+                propertyType: 'PG',
+                address: 'Sector 4, Near IT Park, Mangalagiri',
+                district: 'Vijayawada',
+                gpsLocation: '16.4820, 80.5901',
+                totalRooms: '24',
+                totalCapacity: '48',
+                category: 'Co-Living',
+                amenities: ['Wifi', 'Food / Mess', 'CCTV Security', 'Parking', '24/7 Security'],
+                tradeLicense: 'trade_license.pdf',
+                buildingPermission: 'building_permission.pdf',
+                fireNoc: 'fire_noc.pdf',
+                gst: '37AAAAA0000A1Z5',
+                propertyPhotos: 'building_outside.jpg',
+              });
+              setOtpSent(true);
+              setOtpVerified(true);
+              Alert.alert('⚡ Autofill Active', 'Mock details filled! Proceed by tapping Continue.');
+            }}
+          >
+            <Ionicons name="flash" size={14} color={c.primary} style={{ marginRight: 4 }} />
+            <Text style={{ fontSize: 12, fontWeight: '700', color: c.primary }}>Auto Fill</Text>
+          </TouchableOpacity>
+        </View>
 
         <Card style={styles.card}>
           {step === 1 && (

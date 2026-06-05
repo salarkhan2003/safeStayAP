@@ -3,50 +3,50 @@ import { Theme } from '../types';
 export const lightTheme: Theme = {
   isDark: false,
   colors: {
-    primary: '#1a237e',
-    primaryDark: '#0d1453',
-    primaryLight: '#3949ab',
-    secondary: '#0288d1',
-    accent: '#00bcd4',
-    background: '#f5f7ff',
+    primary: '#1565c0', // Trust-focused AP Police Blue
+    primaryDark: '#0d47a1', // Deep indigo
+    primaryLight: '#e3f2fd', // Soft blue tint
+    secondary: '#00897b', // Soft safety teal
+    accent: '#ff9800', // Warning safety gold
+    background: '#f8fafc', // Softer, cleaner off-white (slate-50) for comfortable trust-focused screen
     surface: '#ffffff',
     card: '#ffffff',
-    text: '#1a1a2e',
-    textSecondary: '#4a4a6a',
-    textMuted: '#9e9eb5',
-    border: '#e8eaf6',
-    error: '#d32f2f',
-    success: '#2e7d32',
-    warning: '#f57c00',
-    info: '#0288d1',
+    text: '#0f172a', // Premium slate-900 typography
+    textSecondary: '#475569', // Slate-600
+    textMuted: '#94a3b8', // Slate-400
+    border: '#e2e8f0', // Slate-200, extremely clean and subtle
+    error: '#e11d48', // Premium rose-600
+    success: '#059669', // Soft emerald-600
+    warning: '#d97706', // Amber-600
+    info: '#2563eb', // Royal blue
     white: '#ffffff',
-    black: '#000000',
-    overlay: 'rgba(26, 35, 126, 0.15)',
+    black: '#0f172a',
+    overlay: 'rgba(21, 101, 192, 0.08)',
   },
 };
 
 export const darkTheme: Theme = {
   isDark: true,
   colors: {
-    primary: '#3949ab',
-    primaryDark: '#1a237e',
-    primaryLight: '#5c6bc0',
-    secondary: '#039be5',
-    accent: '#00e5ff',
-    background: '#0a0a1a',
-    surface: '#12122a',
-    card: '#1a1a35',
-    text: '#e8eaf6',
-    textSecondary: '#b0b8d8',
-    textMuted: '#6a7299',
-    border: '#2a2a4a',
-    error: '#ef5350',
-    success: '#66bb6a',
-    warning: '#ffa726',
-    info: '#29b6f6',
+    primary: '#38bdf8', // Cyber Cyan for Gov-Tech Intelligence Dashboard
+    primaryDark: '#0284c7', // Deep ocean cyan
+    primaryLight: '#7dd3fc', // Soft neon cyan glow
+    secondary: '#10b981', // Glowing neon emerald
+    accent: '#f59e0b', // Neon gold
+    background: '#0b0f19', // Deep dark space tech background
+    surface: '#111827', // Rich slate dark surface
+    card: '#1f2937', // Slate-800 cards
+    text: '#f9fafb', // High-contrast clean off-white
+    textSecondary: '#d1d5db', // Cool gray-300
+    textMuted: '#9ca3af', // Cool gray-400
+    border: '#374151', // Slate-700 clean border grid lines
+    error: '#f87171', // Neon rose
+    success: '#34d399', // Neon emerald
+    warning: '#fbbf24', // Neon amber
+    info: '#60a5fa', // Neon blue
     white: '#ffffff',
-    black: '#000000',
-    overlay: 'rgba(57, 73, 171, 0.25)',
+    black: '#030712',
+    overlay: 'rgba(56, 189, 248, 0.15)',
   },
 };
 

@@ -1,22 +1,193 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, FlatList,
-  TouchableOpacity, Alert,
+  TouchableOpacity, Alert, Modal, TextInput, ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../src/store/authStore';
 import { useThemeStore } from '../../src/store/themeStore';
-import { propertiesApi, bookingsApi, guestsApi } from '../../src/services/mockApi';
+import { propertiesApi, bookingsApi, guestsApi, coGuestsApi } from '../../src/services/mockApi';
 import { Card } from '../../src/components/ui/Card';
 import { Badge } from '../../src/components/ui/Badge';
 import { Input } from '../../src/components/ui/Input';
+import { Button } from '../../src/components/ui/Button';
 import { EmptyState } from '../../src/components/ui/EmptyState';
 import { BORDER_RADIUS, FONT_SIZE, SPACING } from '../../src/constants/theme';
 import type { Booking } from '../../src/types';
 
 type TabType = 'pending' | 'active' | 'all';
+
+function BookingCoGuestsList({ bookingId, themeColors }: { bookingId: string; themeColors: any }) {
+  const c = themeColors;
+  const queryClient = useQueryClient();
+  const [modalVisible, setModalVisible] = useState(false);
+  
+  // States for manual registration form
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [relation, setRelation] = useState('Friend');
+  const [idType, setIdType] = useState('aadhaar');
+  const [idNumber, setIdNumber] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const { data: coGuests } = useQuery({
+    queryKey: ['ownerBookingCoGuests', bookingId],
+    queryFn: () => coGuestsApi.getByBooking(bookingId),
+    enabled: !!bookingId,
+  });
+
+  const handleAddManual = async () => {
+    if (!name.trim() || !phone.trim() || !idNumber.trim()) {
+      Alert.alert('Required Fields', 'Please fill name, phone, and ID number.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await coGuestsApi.addManualCoGuest(bookingId, {
+        name,
+        phone,
+        relationship: relation,
+        idType: idType as any,
+        idNumber,
+      });
+      queryClient.invalidateQueries({ queryKey: ['ownerBookingCoGuests', bookingId] });
+      setModalVisible(false);
+      setName('');
+      setPhone('');
+      setRelation('Friend');
+      setIdType('aadhaar');
+      setIdNumber('');
+      Alert.alert('Success', 'Co-guest occupant registered and verification logged.');
+    } catch (e) {
+      Alert.alert('Error', 'Failed to register co-guest.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: c.border, paddingTop: 10 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+        <Text style={{ fontSize: 11, fontWeight: '700', color: c.textMuted }}>CO-OCCUPANTS ({coGuests?.length || 0})</Text>
+        <TouchableOpacity 
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}
+          onPress={() => setModalVisible(true)}
+        >
+          <Ionicons name="add-circle" size={14} color={c.primary} />
+          <Text style={{ fontSize: 11, fontWeight: '700', color: c.primary }}>Register Co-Guest</Text>
+        </TouchableOpacity>
+      </View>
+
+      {coGuests && coGuests.map((cg) => {
+        const isFlagged = cg.watchlistStatus === 'flagged';
+        const isAccepted = cg.status === 'accepted';
+        return (
+          <View key={cg.id} style={{ paddingVertical: 4, paddingHorizontal: 6, borderRadius: BORDER_RADIUS.sm, backgroundColor: c.border + '20', marginBottom: 4 }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Text style={{ fontSize: 12, fontWeight: '600', color: c.text }}>
+                {cg.name} ({cg.relationship})
+              </Text>
+              <Badge 
+                label={isFlagged ? 'FLAGGED' : isAccepted || cg.isManualUpload ? 'CLEARED' : 'PENDING'} 
+                variant={isFlagged ? 'error' : (isAccepted || cg.isManualUpload) ? 'success' : 'warning'} 
+                size="sm"
+              />
+            </View>
+            {isFlagged && (
+              <Text style={{ fontSize: 10, fontWeight: '700', color: c.error, marginTop: 2 }}>
+                ⚠️ SECURITY REVIEW ALERT: {cg.watchlistMatchNotes || 'Verification review needed!'}
+              </Text>
+            )}
+          </View>
+        );
+      })}
+
+      {/* Modal for Manual Registration */}
+      <Modal visible={modalVisible} animationType="slide" transparent>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: c.surface, borderTopLeftRadius: BORDER_RADIUS.lg, borderTopRightRadius: BORDER_RADIUS.lg, padding: SPACING.md, maxHeight: '80%' }}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.md }}>
+              <Text style={{ fontSize: 16, fontWeight: '700', color: c.text }}>Manual Co-Guest Setup</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Ionicons name="close" size={24} color={c.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView contentContainerStyle={{ paddingBottom: 40 }} keyboardShouldPersistTaps="handled">
+              <Text style={{ fontSize: 11, color: c.textMuted, marginBottom: 12 }}>
+                Verify identity documents physically and register occupants below.
+              </Text>
+
+              <Text style={styles.formLabel}>Full Name</Text>
+              <TextInput
+                style={[styles.formInput, { borderColor: c.border, color: c.text }]}
+                value={name}
+                onChangeText={setName}
+                placeholder="Enter guest full name"
+                placeholderTextColor={c.textMuted}
+              />
+
+              <Text style={styles.formLabel}>Mobile Number</Text>
+              <TextInput
+                style={[styles.formInput, { borderColor: c.border, color: c.text }]}
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="+91 9XXXX XXXXX"
+                placeholderTextColor={c.textMuted}
+                keyboardType="phone-pad"
+              />
+
+              <Text style={styles.formLabel}>Relationship</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginVertical: 6 }}>
+                {['Spouse', 'Parent', 'Brother', 'Sister', 'Friend', 'Child'].map(r => (
+                  <TouchableOpacity
+                    key={r}
+                    style={[styles.relationChip, { borderColor: relation === r ? c.primary : c.border, backgroundColor: relation === r ? c.primary + '10' : 'transparent' }]}
+                    onPress={() => setRelation(r)}
+                  >
+                    <Text style={{ fontSize: 12, color: relation === r ? c.primary : c.textSecondary }}>{r}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.formLabel}>ID Document Type</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginVertical: 6 }}>
+                {['aadhaar', 'pan', 'passport'].map(t => (
+                  <TouchableOpacity
+                    key={t}
+                    style={[styles.relationChip, { borderColor: idType === t ? c.primary : c.border, backgroundColor: idType === t ? c.primary + '10' : 'transparent' }]}
+                    onPress={() => setIdType(t)}
+                  >
+                    <Text style={{ fontSize: 12, color: idType === t ? c.primary : c.textSecondary }}>{t.toUpperCase()}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.formLabel}>ID Number</Text>
+              <TextInput
+                style={[styles.formInput, { borderColor: c.border, color: c.text }]}
+                value={idNumber}
+                onChangeText={setIdNumber}
+                placeholder="Enter ID document number"
+                placeholderTextColor={c.textMuted}
+                autoCapitalize="characters"
+              />
+
+              <Button
+                title={submitting ? 'Running Security Check...' : 'Register Guest & Verify Security Status'}
+                onPress={handleAddManual}
+                disabled={submitting}
+                style={{ marginTop: 16 }}
+              />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
+}
 
 export default function OwnerGuestsScreen() {
   const { user } = useAuthStore();
@@ -111,6 +282,8 @@ export default function OwnerGuestsScreen() {
             ₹{booking.totalAmount.toLocaleString()}
           </Text>
         </View>
+
+        <BookingCoGuestsList bookingId={booking.id} themeColors={c} />
 
         {/* Action Buttons */}
         <View style={styles.actionRow}>
@@ -239,4 +412,7 @@ const styles = StyleSheet.create({
   actionRow: { flexDirection: 'row', gap: SPACING.sm },
   actionBtn: { flexDirection: 'row', alignItems: 'center', gap: SPACING.xs, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, borderRadius: BORDER_RADIUS.full, borderWidth: 1 },
   actionText: { fontSize: FONT_SIZE.sm, fontWeight: '600' },
+  formLabel: { fontSize: 11, fontWeight: '700', marginTop: 8, color: '#334155' },
+  formInput: { borderWidth: 1, borderRadius: BORDER_RADIUS.md, height: 40, paddingHorizontal: 12, fontSize: 13, marginTop: 4 },
+  relationChip: { borderWidth: 1, borderRadius: BORDER_RADIUS.full, paddingHorizontal: 12, paddingVertical: 6 },
 });

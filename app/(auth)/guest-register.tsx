@@ -169,13 +169,52 @@ export default function GuestRegisterScreen() {
           ))}
         </View>
 
-        <Text style={[styles.stepTitle, { color: c.text }]}>
-          {step === 1 && 'Step 1: Basic Details'}
-          {step === 2 && 'Step 2: Identity Verification'}
-          {step === 3 && 'Step 3: Emergency Safety details'}
-          {step === 4 && 'Step 4: Permanent Address'}
-          {step === 5 && 'Step 5: Account Activation'}
-        </Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginVertical: SPACING.sm, paddingHorizontal: 4 }}>
+          <Text style={[styles.stepTitle, { color: c.text, textAlign: 'left', flex: 1 }]}>
+            {step === 1 && 'Step 1: Basic Details'}
+            {step === 2 && 'Step 2: Identity Verification'}
+            {step === 3 && 'Step 3: Emergency Safety details'}
+            {step === 4 && 'Step 4: Permanent Address'}
+            {step === 5 && 'Step 5: Account Activation'}
+          </Text>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: c.primary + '15',
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: c.primary + '30',
+            }}
+            onPress={() => {
+              setForm({
+                name: 'Aditya Prasad',
+                phone: '9876543210',
+                otp: '123456',
+                email: 'aditya.prasad@gmail.com',
+                dob: '15/08/1998',
+                gender: 'Male',
+                idType: 'Aadhaar',
+                idNumber: '5489 1200 4567',
+                idPhoto: 'selected_photo.jpg',
+                emergencyName: 'Ramesh Prasad',
+                emergencyPhone: '9012345678',
+                emergencyRelation: 'Father',
+                address: 'Plot No 45, Beside AP Police HQ, Mangalagiri',
+                city: 'Guntur',
+                state: 'Andhra Pradesh',
+              });
+              setOtpSent(true);
+              setOtpVerified(true);
+              Alert.alert('⚡ Autofill Active', 'Mock details filled! Proceed by tapping Continue.');
+            }}
+          >
+            <Ionicons name="flash" size={14} color={c.primary} style={{ marginRight: 4 }} />
+            <Text style={{ fontSize: 12, fontWeight: '700', color: c.primary }}>Auto Fill</Text>
+          </TouchableOpacity>
+        </View>
 
         <Card style={styles.card}>
           {step === 1 && (

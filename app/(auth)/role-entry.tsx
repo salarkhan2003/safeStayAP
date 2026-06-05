@@ -30,8 +30,10 @@ export default function RoleEntryScreen() {
     });
 
     if (isGuest) {
+      useThemeStore.getState().setTheme(false);
       router.replace('/(guest)/home');
     } else {
+      useThemeStore.getState().setTheme(true);
       router.replace('/(owner)/dashboard');
     }
   };

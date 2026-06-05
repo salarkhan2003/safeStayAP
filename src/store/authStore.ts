@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, _get) => ({
     set({ user: null, token: null, isAuthenticated: false, role: null });
   },
 
-  setUser: (user) => set({ user, role: user.role }),
+  setUser: (user) => set({ user, role: user.role, isAuthenticated: true }),
   setRole: (role) => set({ role }),
 
   setOnboardingComplete: () => {

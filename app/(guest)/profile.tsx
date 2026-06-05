@@ -150,6 +150,8 @@ export default function GuestProfileScreen() {
             onPress={() => router.push('/(guest)/kyc')}
           />
           <MenuItem icon="people-outline" label="Emergency Contacts" onPress={() => router.push('/(guest)/emergency-contacts')} />
+          <MenuItem icon="people-circle-outline" label="My Travelers" subtitle="Saved co-guests profiles" onPress={() => router.push('/(guest)/my-travelers')} />
+          <MenuItem icon="mail-unread-outline" label="My Invitations" subtitle="Co-guest stay invites" onPress={() => router.push('/(guest)/my-invitations')} />
         </Card>
 
         <Card style={styles.menuSection}>

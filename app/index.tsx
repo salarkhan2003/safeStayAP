@@ -3,12 +3,18 @@ import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../src/store/authStore';
+import { useThemeStore } from '../src/store/themeStore';
 
 export default function Index() {
   const { isAuthenticated, isLoading, role, hasCompletedOnboarding } = useAuthStore();
+  const { setTheme } = useThemeStore();
 
   useEffect(() => {
     if (isLoading) return;
+
+    if (isAuthenticated) {
+      setTheme(role === 'owner');
+    }
 
     const timer = setTimeout(() => {
       if (!hasCompletedOnboarding) {

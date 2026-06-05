@@ -9,7 +9,7 @@ import { mockBookings, mockAlerts, mockNotifications, mockIncidents } from '../d
 import { appStorage, secureStorage } from './storage';
 import type {
   User, GuestProfile, OwnerProfile, Property, Room, Booking,
-  Alert, Notification, Incident, KYCDocument,
+  Alert, Notification, Incident, KYCDocument, CoGuest, SavedTraveler, CoGuestStatus
 } from '../types';
 
 const delay = (ms = 600) => new Promise(res => setTimeout(res, ms));
@@ -412,3 +412,267 @@ export const analyticsApi = {
     };
   },
 };
+
+// ─── Multi-Guest & Co-Guest Verification databases ───────────────────────────
+
+export const mockSavedTravelers: SavedTraveler[] = [
+  {
+    id: 'st_001',
+    userId: 'guest_001',
+    name: 'Suhasini Reddy',
+    phone: '+91 9000000002',
+    relationship: 'Spouse',
+    idType: 'aadhaar',
+    idNumber: '5432-8765-4321',
+    photoUrl: 'https://picsum.photos/seed/traveler1/120/120',
+  },
+  {
+    id: 'st_002',
+    userId: 'guest_001',
+    name: 'Anil Kumar',
+    phone: '+91 9000000003',
+    relationship: 'Brother',
+    idType: 'pan',
+    idNumber: 'ABCDE1234F',
+    photoUrl: 'https://picsum.photos/seed/traveler2/120/120',
+  },
+  {
+    id: 'st_003',
+    userId: 'guest_001',
+    name: 'Venkat Raju', // This will flag as criminal/watchlist for testing
+    phone: '+91 9000000004',
+    relationship: 'Friend',
+    idType: 'aadhaar',
+    idNumber: '9876-5432-1098',
+    photoUrl: 'https://picsum.photos/seed/traveler3/120/120',
+  },
+];
+
+export const mockCoGuests: CoGuest[] = [
+  {
+    id: 'cg_001',
+    bookingId: 'booking_001',
+    name: 'Suhasini Reddy',
+    phone: '+91 9000000002',
+    relationship: 'Spouse',
+    idType: 'aadhaar',
+    idNumber: '5432-8765-4321',
+    status: 'accepted',
+    invitedAt: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
+    invitationExpiry: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+    resendCount: 0,
+    isManualUpload: false,
+    watchlistStatus: 'clear',
+  }
+];
+
+// ─── Travelers API ────────────────────────────────────────────────────────────
+
+export const travelersApi = {
+  getByUser: async (userId: string): Promise<SavedTraveler[]> => {
+    await delay(500);
+    return mockSavedTravelers.filter(t => t.userId === userId);
+  },
+
+  save: async (traveler: Partial<SavedTraveler> & { userId: string }): Promise<SavedTraveler> => {
+    await delay(700);
+    const existingIdx = mockSavedTravelers.findIndex(t => t.id === traveler.id);
+    if (existingIdx > -1) {
+      mockSavedTravelers[existingIdx] = {
+        ...mockSavedTravelers[existingIdx],
+        ...traveler,
+      } as SavedTraveler;
+      return mockSavedTravelers[existingIdx];
+    } else {
+      const newTraveler: SavedTraveler = {
+        id: `st_${Date.now()}`,
+        userId: traveler.userId,
+        name: traveler.name || '',
+        phone: traveler.phone || '',
+        relationship: traveler.relationship || 'Friend',
+        idType: traveler.idType || 'aadhaar',
+        idNumber: traveler.idNumber || '',
+        photoUrl: traveler.photoUrl || `https://picsum.photos/seed/traveler_${Date.now()}/120/120`,
+      };
+      mockSavedTravelers.push(newTraveler);
+      return newTraveler;
+    }
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await delay(400);
+    const idx = mockSavedTravelers.findIndex(t => t.id === id);
+    if (idx > -1) {
+      mockSavedTravelers.splice(idx, 1);
+    }
+  },
+
+  mockOcr: async (imageUri: string): Promise<{ name: string; idNumber: string; idType: 'aadhaar' | 'pan' | 'passport'; dateOfBirth: string }> => {
+    await delay(1500); // Simulate network lag + scanning
+    // Extract mock data from image seed
+    return {
+      name: "Sandeep Chowdary",
+      idNumber: "3845-9271-8402",
+      idType: "aadhaar",
+      dateOfBirth: "1994-08-15"
+    };
+  }
+};
+
+// ─── Co-Guests API ────────────────────────────────────────────────────────────
+
+export const coGuestsApi = {
+  getByBooking: async (bookingId: string): Promise<CoGuest[]> => {
+    await delay(400);
+    const guests = mockCoGuests.filter(cg => cg.bookingId === bookingId);
+    
+    // Auto-update expired invitations
+    const now = new Date();
+    guests.forEach(g => {
+      if (g.status === 'invited' && new Date(g.invitationExpiry) < now) {
+        g.status = 'expired';
+      }
+    });
+
+    return guests;
+  },
+
+  inviteCoGuest: async (
+    bookingId: string,
+    data: { name: string; phone: string; relationship: string; idType: any; idNumber: string; primaryGuestName: string }
+  ): Promise<CoGuest> => {
+    await delay(800);
+    const newCoGuest: CoGuest = {
+      id: `cg_${Date.now()}`,
+      bookingId,
+      name: data.name,
+      phone: data.phone,
+      relationship: data.relationship,
+      idType: data.idType,
+      idNumber: data.idNumber,
+      status: 'invited',
+      invitedAt: new Date().toISOString(),
+      invitationExpiry: new Date(Date.now() + 24 * 3600 * 1000).toISOString(), // 24 Hours expiry
+      resendCount: 0,
+      isManualUpload: false,
+      watchlistStatus: 'pending',
+    };
+    mockCoGuests.push(newCoGuest);
+
+    // If the phone number matches an existing guest user in the system, alert them via in-app notification
+    const matchedGuest = mockGuests.find(g => g.phone.replace(/\s+/g, '') === data.phone.replace(/\s+/g, ''));
+    if (matchedGuest) {
+      mockNotifications.unshift({
+        id: `notif_${Date.now()}`,
+        userId: matchedGuest.id,
+        title: 'SafeStay Co-Guest Booking Invitation',
+        body: `You have been invited by ${data.primaryGuestName} as a co-guest. Accept now to link your profile.`,
+        type: 'booking',
+        isRead: false,
+        data: { bookingId, coGuestId: newCoGuest.id },
+        createdAt: new Date().toISOString(),
+      });
+    }
+
+    return newCoGuest;
+  },
+
+  resendInvitation: async (coGuestId: string): Promise<CoGuest> => {
+    await delay(700);
+    const cg = mockCoGuests.find(c => c.id === coGuestId);
+    if (!cg) throw new Error('Invitation not found');
+
+    if (cg.resendCount >= 3) {
+      throw new Error('Resend limit exceeded (Max 3 times)');
+    }
+
+    cg.status = 'invited';
+    cg.invitedAt = new Date().toISOString();
+    cg.invitationExpiry = new Date(Date.now() + 24 * 3600 * 1000).toISOString();
+    cg.resendCount += 1;
+
+    return cg;
+  },
+
+  respondToInvitation: async (coGuestId: string, accept: boolean): Promise<CoGuest> => {
+    await delay(1000);
+    const cg = mockCoGuests.find(c => c.id === coGuestId);
+    if (!cg) throw new Error('Co-guest record not found');
+
+    cg.status = accept ? 'accepted' : 'declined';
+    
+    // Find booking to notify the primary guest
+    const booking = mockBookings.find(b => b.id === cg.bookingId);
+    if (booking) {
+      mockNotifications.unshift({
+        id: `notif_${Date.now()}`,
+        userId: booking.guestId,
+        title: accept ? 'Invitation Accepted' : 'Invitation Declined',
+        body: accept 
+          ? `Co-guest ${cg.name} has accepted your stay invitation.` 
+          : `Co-guest ${cg.name} has declined your stay invitation.`,
+        type: 'booking',
+        isRead: false,
+        data: { bookingId: booking.id },
+        createdAt: new Date().toISOString(),
+      });
+    }
+
+    if (accept) {
+      // Perform automated background Police Watchlist Match
+      const nameLower = cg.name.toLowerCase();
+      if (nameLower.includes('wanted') || nameLower.includes('criminal') || nameLower.includes('raju') || nameLower.includes('sunder')) {
+        cg.watchlistStatus = 'flagged';
+        cg.watchlistMatchNotes = 'Flagged in AP Crime Watchlist: Match ID AP-WATCH-209. Active warrant outstanding for Section 420 IPC.';
+      } else {
+        cg.watchlistStatus = 'clear';
+      }
+    }
+
+    return cg;
+  },
+
+  addManualCoGuest: async (
+    bookingId: string,
+    data: { name: string; phone: string; relationship: string; idType: any; idNumber: string; photoUrl?: string; idDocUrl?: string }
+  ): Promise<CoGuest> => {
+    await delay(1000);
+    const nameLower = data.name.toLowerCase();
+    let watchlistStatus: 'clear' | 'flagged' = 'clear';
+    let watchlistMatchNotes: string | undefined = undefined;
+
+    if (nameLower.includes('wanted') || nameLower.includes('criminal') || nameLower.includes('raju') || nameLower.includes('sunder')) {
+      watchlistStatus = 'flagged';
+      watchlistMatchNotes = 'Flagged in AP Crime Watchlist: Match ID AP-WATCH-209. Active warrant outstanding for Section 420 IPC.';
+    }
+
+    const newCoGuest: CoGuest = {
+      id: `cg_${Date.now()}`,
+      bookingId,
+      name: data.name,
+      phone: data.phone,
+      relationship: data.relationship,
+      idType: data.idType,
+      idNumber: data.idNumber,
+      photoUrl: data.photoUrl || 'https://picsum.photos/seed/man1/100/100',
+      idDocUrl: data.idDocUrl || 'https://picsum.photos/seed/doc1/100/100',
+      status: 'accepted', // Auto-accepted since manually verified by host or guest uploads
+      invitedAt: new Date().toISOString(),
+      invitationExpiry: new Date().toISOString(),
+      resendCount: 0,
+      isManualUpload: true,
+      watchlistStatus,
+      watchlistMatchNotes,
+    };
+
+    mockCoGuests.push(newCoGuest);
+    return newCoGuest;
+  },
+
+  getInvitationsByUser: async (phone: string): Promise<CoGuest[]> => {
+    await delay(500);
+    const normalizedPhone = phone.replace(/\s+/g, '');
+    return mockCoGuests.filter(cg => cg.phone.replace(/\s+/g, '') === normalizedPhone);
+  }
+};
+
