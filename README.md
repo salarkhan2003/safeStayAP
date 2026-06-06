@@ -1,339 +1,220 @@
-# 🛡️ SafeStay AP — Smart Hospitality & Safety Monitoring
+# 🛡️ SafeStay AP Mobile Application
 
 [![AP Police Dept](https://img.shields.io/badge/Andhra%20Pradesh-Police%20Dept-004080?style=for-the-badge&logo=target&logoColor=white)](https://appolice.gov.in)
 [![Expo SDK](https://img.shields.io/badge/Expo-SDK%2054.0.0-000020?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev)
 [![React Native](https://img.shields.io/badge/React%20Native-0.81.5-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactnative.dev)
-[![State](https://img.shields.io/badge/State-Zustand-orange?style=for-the-badge)](https://github.com/pmndrs/zustand)
-[![Query](https://img.shields.io/badge/Query-TanStack%20v5-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)](https://tanstack.com)
-[![Mapping](https://img.shields.io/badge/Map-Leaflet%20GIS-2B821A?style=for-the-badge&logo=leaflet&logoColor=white)](https://leafletjs.com)
+[![Backend Supabase](https://img.shields.io/badge/Backend-Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Backend Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
+[![State Zustand](https://img.shields.io/badge/State-Zustand-orange?style=for-the-badge)](https://github.com/pmndrs/zustand)
+[![Query TanStack](https://img.shields.io/badge/Query-TanStack%20v5-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)](https://tanstack.com)
 
-SafeStay AP is an institutional-grade security and hospitality ecosystem designed in coordination with the **Andhra Pradesh Police Department** to regulate, verify, and monitor Paying Guest (PG) hostels, private accommodations, and temporary rentals. The platform ensures guest safety, automates regulatory compliance, and provides real-time threat detection to help prevent fraud and secure high-occupancy residential locations.
+SafeStay AP is the official cross-platform mobile application developed in coordination with the **Andhra Pradesh Police Department** to regulate Paying Guest (PG) hostels, co-living spaces, and student accommodations. It features a dual-interface system serving both **Guests** (manifest registry, digital check-ins, eKYC validation, and SOS safety triggers) and **PG Hosts/Owners** (occupant registers, QR code check-in scanners, municipal safety compliance, and property manager stats).
 
 ---
 
 ## 📖 Table of Contents
-1. [Ecosystem Architecture](#-ecosystem-architecture)
+1. [System Architecture](#-system-architecture)
 2. [Tech Stack Matrix](#-tech-stack-matrix)
 3. [Key Features](#-key-features)
-4. [System Data Flows](#-system-data-flows)
-5. [Codebase & Directory Layout](#-codebase--directory-layout)
-6. [Getting Started & Installation](#-getting-started--installation)
-7. [Testing & Demo Walkthrough](#-testing--demo-walkthrough)
-8. [License & Compliance](#-license--compliance)
+4. [App Folder & Routing Map](#-app-folder--routing-map)
+5. [Local Development & Setup](#-local-development--setup)
+6. [Testing & Mock Scenarios](#-testing--mock-scenarios)
+7. [Compliance & Security](#-compliance--security)
 
 ---
 
-## 🏗️ Ecosystem Architecture
+## 🏗️ System Architecture
 
-The SafeStay AP ecosystem is comprised of two core software platforms:
-1. **SafeStay AP Mobile App (`SafeStayAP`)**: A cross-platform Expo client serving both **Guests** (eKYC, bookings, silent SOS, and guest passes) and **PG Owners/Hosts** (manifest management, check-in scanning, compliance tracker, and analytics).
-2. **AP Police Intelligence Dashboard (`DASHBOARD_AP_POLICE`)**: A GIS-enabled web console for district police command rooms to monitor residential heatmaps, review incident logs, dispatch patrol units, and manage watchlist matches.
+The mobile application is architected around a React Native/Expo client that leverages local async engines for development and connects to a backend cluster utilizing Supabase and Firebase.
 
-### High-Level System Architecture
+### Mobile Client & Backend Integration Flow
 
 ```mermaid
 graph TD
-    %% Define Nodes
-    subgraph Client_Applications["Client Layer"]
-        App["SafeStay AP Expo Mobile App<br>(React Native / TypeScript)"]
-        Dash["AP Police Intelligence Dashboard<br>(HTML5 / ES6 / Leaflet.js)"]
+    %% Mobile App Components
+    subgraph UI_Layer["UI Screen Layer (app/*)"]
+        GuestView["Guest Workspace<br>(Booking, SOS, Pass, eKYC)"]
+        OwnerView["Owner Workspace<br>(Manifest, Scanner, Analytics)"]
+        AuthView["Auth Workspace<br>(Role Select, OTP, Profile Setup)"]
     end
 
-    subgraph State_And_Logic["Frontend Logic (Mobile)"]
-        Store["Zustand Stores<br>(Auth, Theme, Translations)"]
-        RQuery["TanStack React Query v5<br>(Server Cache Simulation)"]
-        API["Mock API Client Layer<br>(Async Delay & Local Persist)"]
+    subgraph Logic_Layer["Logic & State Engine (src/*)"]
+        Store["Zustand Stores<br>(authStore, themeStore, langStore)"]
+        Cache["React Query Cache<br>(Query/Mutation management)"]
+        API["Mock API / Services Layer<br>(Local Persistence & Network Simulation)"]
     end
 
-    subgraph Local_Storage["Device Storage"]
-        AStorage["AsyncStorage<br>(User Profiles / Settings)"]
-        SStore["SecureStore<br>(Session Token Management)"]
+    %% External Backends
+    subgraph Backend_Services["Production Backend Services"]
+        SupaAuth["Supabase Authentication<br>(User session credentials)"]
+        SupaDB["Supabase Real-Time DB<br>(Profiles, Bookings, Properties, Compliance)"]
+        SupaStore["Supabase Storage Buckets<br>(KYC Documents & Profile Photos)"]
+        FCM["Firebase Cloud Messaging<br>(Push Notification Alert System)"]
+        FireAuth["Firebase Auth / OTP<br>(SMS verification gateways)"]
+        PoliceApi["AP Police API Gateway<br>(Automatic criminal record checks)"]
     end
 
-    subgraph Police_Command_State["Intelligence Dashboard State"]
-        PState["Dashboard Controller Logic<br>(app.js / data.js)"]
-        MapEngine["Leaflet GIS Engine<br>(OpenStreetMap / CartoDB)"]
-    end
+    %% Flows
+    GuestView & OwnerView & AuthView --> Store
+    GuestView & OwnerView & AuthView --> Cache
+    Cache --> API
 
-    %% Define Relationships
-    App --> Store
-    App --> RQuery
-    RQuery --> API
-    API --> AStorage
-    API --> SStore
-    
-    Dash --> PState
-    PState --> MapEngine
-    
-    %% Simulated network sync
-    API -. "Simulated Watchlist/SOS Sync" .-> PState
+    %% Backend links
+    API -.-> SupaAuth
+    API -.-> SupaDB
+    API -.-> SupaStore
+    API -.-> FCM
+    API -.-> FireAuth
+    API -.-> PoliceApi
 ```
 
 ---
 
 ## 🛠️ Tech Stack Matrix
 
-### 📱 SafeStay AP Mobile App
-*   **Core Framework**: React Native 0.81.5 with **Expo SDK 54.0.0**
-*   **Programming Language**: TypeScript (with strict typing)
-*   **Routing System**: `expo-router` v6 (File-based routing with support for Typed Routes)
-*   **State Management**: `zustand` v5 (Lightweight decoupled hooks for reactive stores)
-*   **Network/Data Fetching**: `@tanstack/react-query` v5 (Queries, Mutations, Cache-invalidation)
-*   **Form Management**: `react-hook-form` & `zod` schema-based validation
-*   **Hardware / Native API Integrations**:
-    *   `expo-camera`: Direct QR scanner utility & document capturing
-    *   `expo-image-picker`: Profile photo selection & document uploads
-    *   `expo-notifications`: Push alert delivery
-    *   `expo-secure-store`: Hardened encryption storage for authentication tokens
-    *   `@react-native-async-storage/async-storage`: Application preferences and cached data
-*   **Animations & UI Styling**:
-    *   `react-native-reanimated` v4: For hardware-accelerated layouts
-    *   `expo-linear-gradient`: Premium visual backdrops
-    *   `expo-blur`: Glassmorphic tabs and panels
-    *   Vanilla `StyleSheet` styling leveraging pre-defined color constants (`src/constants/theme.ts`)
-*   **Internationalization**: Custom `i18n` translation layer supporting English, Telugu (తెలుగు), and Hindi (हिन्दी)
+### 📱 Frontend Mobile Architecture
+*   **Core Engine**: React Native 0.81.5 powered by **Expo SDK 54.0.0** (Hermes JS runtime engine)
+*   **Coding Standards**: Strict TypeScript templates (`tsconfig.json` configurations)
+*   **Routing System**: `expo-router` v6 (File-system routes with typed routing interfaces)
+*   **State Store**: `zustand` v5 (Decoupled, hooks-based global state containers)
+*   **Server State & Querying**: `@tanstack/react-query` v5 (Query caching, retry states, and optimistic UI mutations)
+*   **Form & Verification Layers**: `react-hook-form` paired with `zod` schema verification engines
+*   **Native Permissions & Hardware Hooks**:
+    *   `expo-camera`: Instant QR scanner integration for host check-in validations
+    *   `expo-image-picker`: Profile capture and identification card scanning
+    *   `expo-notifications`: Push alerts for co-guest check-in confirmations and active SOS alarms
+    *   `expo-secure-store`: Hardware-level keychain credentials encryption (saving API JWTs)
+    *   `@react-native-async-storage/async-storage`: Application preferences and workspace caches
+*   **Design Language**: Custom vanilla stylesheets leveraging standardized design tokens (`src/constants/theme.ts`) supporting dark mode transitions, `expo-linear-gradient` backdrops, and `expo-blur` glassmorphism.
 
-### 🚔 AP Police Intelligence Web Dashboard
-*   **User Interface**: Custom HTML5/CSS3 styled with custom CSS variables (Supporting native Light/Dark themes)
-*   **Geospatial Tracking**: **Leaflet.js** using CartoDB Dark Matter (Dark Theme) and CartoDB Voyager (Light Theme) tile streams
-*   **Application Logic**: Vanilla ES6 JavaScript (handling real-time search filtering, drawer analytics, and incident handling)
-*   **Hosting Configuration**: Deployable statically on Vercel (`vercel.json` routes pre-configured)
+### 🔌 Backend Cloud Services
+*   **Database & Datastore (Supabase)**:
+    *   **PostgreSQL Engine**: Relational datastore containing schemas for user profiles, PG accommodations, room configurations, and real-time logs.
+    *   **Row-Level Security (RLS)**: Enforces access controls, ensuring hosts can only access listings they own, and guests can only view their active bookings.
+    *   **Supabase Storage**: Secure object buckets for document storage (Aadhaar cards, PANs, Passports) with access limits.
+    *   **Real-time Subscriptions**: Powers the instant SOS alert pipeline, dispatching real-time updates to hosts when an alarm is triggered.
+*   **Push Notifications & Gateway Auth (Firebase)**:
+    *   **Firebase Cloud Messaging (FCM)**: Configured to dispatch low-latency push notifications to devices for emergency alerts, guest confirmations, and co-guest requests.
+    *   **Firebase Authentication (Phone verification)**: Integrates Firebase OTP text messaging for phone confirmation.
+*   **AP Police Registry Gateway**:
+    *   Automated REST hooks matching incoming profiles against AP Police criminal registries.
 
 ---
 
 ## 🌟 Key Features
 
 ### 🤵 Guest Portal
-*   **Unified eKYC System**: Upload identity cards (Aadhaar, PAN, Passport) with custom mock-OCR metadata extraction.
-*   **Guest Digital ID Pass**: Generates dynamic QR codes linked to verified bookings for zero-contact check-in at PG gates.
-*   **Co-Guest Invites**: Add travel companions to bookings. Companions receive invite alerts and must verify their profiles before checking in.
-*   **SOS Panic Dashboard**: Allows instant activation of standard (audible) or silent emergency alarms. Automatically resolves location-coordinates and notifies both PG hosts and local police divisions.
-*   **Saved Travelers Directory**: Store verified companion profiles for quick reference during booking.
+*   **Seamless eKYC Registry**: Upload identity cards (Aadhaar, PAN, Passport) with OCR-based parameter reading.
+*   **Contactless Check-In Pass**: Generates encrypted dynamic check-in QR codes linked to database bookings.
+*   **Co-Guest Invitations**: Link travel companions to active bookings. Guests receive invitation requests to sync their profiles before check-in.
+*   **Emergency SOS Panel**: Dual trigger modes:
+    *   *Audible SOS*: Emits a loud alarm, records current coordinates, and sends alerts to host and local police command.
+    *   *Silent SOS*: Discreetly alerts emergency teams with updated location info without displaying active alarm panels on-screen.
+*   **Saved Companions List**: Directory for managing frequent travelers' verification documents.
 
-### 🏨 PG Owner Panel
-*   **Digital Gate Registry**: Live check-in list of current occupants. Hosts can check-in guests by scanning their QR code.
-*   **Automated Watchlist Check**: Performs immediate screening of all incoming guest names and IDs against active criminal watchlists. Flagged entries prompt warnings on both the host's phone and the police dashboard.
-*   **Compliance Control Center**: Document uploads for business licenses, police clearance certificates, CCTV health statuses, and fire safety ratings.
-*   **Analytics Dashboard**: Occupancy trends, monthly revenue indicators, and growth trackers.
-*   **Staff Registry**: Management panel for wardens, security, and cleaning crews.
-
-### 👮 AP Police Command Dashboard
-*   **Interactive District Map**: Geospatial representation of Andhra Pradesh PG Hubs (Vijayawada, Visakhapatnam, Guntur, Tirupati, Kurnool, Anantapur) indicating occupancy density, SOS alarms, and threat matches.
-*   **Live Audit Scores**: Track compliance audits of local hostels. Features a "Force Audit" trigger to inspect digital registers remotely.
-*   **Active Emergency Feed**: Instant alarm ticker detailing the threat level, property location, and timestamp of any guest SOS activation.
-*   **Incident Dispatch Console**: Assign police officers to investigate alarms, update cases, and resolve threats directly.
+### 🏨 Host & Owner Workspace
+*   **Interactive Gate Manifest**: Live registry of current check-ins, upcoming bookings, and checked-out occupants.
+*   **Camera QR Scanner**: Validates guests instantly at the property gate by scanning their digital check-in passes.
+*   **Watchlist Threat Screening**: Screening engine that cross-references check-ins with AP Police databases. Matches flag profiles and trigger alert notifications.
+*   **Compliance Documentation**: Portal for uploading commercial permissions, fire clearance certificates, and CCTV camera online statuses.
+*   **Staff Registry Manager**: Management console for host wardens, gatekeepers, and security staff.
+*   **Host Business Analytics**: Real-time graphs showing property occupancy rates and revenue metrics.
 
 ---
 
-## 🔄 System Data Flows
+## 📂 App Folder & Routing Map
 
-### 1. eKYC Verification & Criminal Watchlist Screening
+The application's pages are organized under the `app` folder, using `expo-router` file-system routing conventions:
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Guest as Guest App
-    participant API as Mock API Service
-    participant WL as Crime Watchlist DB
-    participant Police as Police Dashboard
+### 🔑 Authentication Routes (`app/(auth)`)
+*   `role-select.tsx` & `role-entry.tsx`: Initial entry points to select between **Guest** or **Owner/Host** panels.
+*   `login.tsx`: Phone number entry and gateway triggers.
+*   `otp.tsx`: One-time password verification screen.
+*   `guest-register.tsx` & `owner-register.tsx`: Profile setup forms requiring name, email, emergency contact details, and compliance items.
 
-    Guest->>API: Upload KYC Document (Aadhaar/PAN/Passport)
-    API->>API: Run Mock OCR Data Extraction (Name, DoB, ID Number)
-    API->>WL: Match Guest Name & ID Number
-    alt Match Found (Wanted/Criminal)
-        WL-->>API: Watchlist Threat Flagged
-        API-->>Guest: Save Profile with Flagged WatchlistStatus
-        API->>Police: Fire Real-time Threat Alert (Audit Trail Created)
-        Note over Police: Dispatching officer assignment
-    else No Match
-        WL-->>API: Match Clear
-        API-->>Guest: Set Status to "Clear"
-    end
-```
+### 🤵 Guest Workspace Routes (`app/(guest)`)
+*   `home.tsx`: Guest main panel displaying current stay state, active search bar, and emergency widgets.
+*   `search.tsx`: Property explorer featuring map view toggles, price limits, and amenity filters.
+*   `property/[id].tsx`: Accommodation page showing room capacities, host phone numbers, reviews, and rules.
+*   `booking/[id].tsx`: Booking request flow, date configurations, and co-guest invitation tools.
+*   `stay.tsx`: Current booking details, room mate indices, check-in timestamps, and check-out triggers.
+*   `guest-pass.tsx`: Generates a digital QR check-in pass.
+*   `kyc.tsx`: eKYC document upload console.
+*   `my-travelers.tsx`: Panel to add companion profiles, upload documents, and pre-verify IDs using OCR simulation.
+*   `my-invitations.tsx`: Lists booking requests received from other guests.
+*   `emergency-contacts.tsx` & `sos.tsx`: Emergency helpline directories and standard/silent SOS buttons.
+*   `profile.tsx` & `edit-profile.tsx`: Guest contact settings.
+*   `language.tsx`: System translation switcher (English, Telugu, Hindi).
+*   `help.tsx` & `terms.tsx`: User support docs.
 
-### 2. Emergency SOS / Silent Alarm Flow
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Guest as Guest
-    participant App as Guest Mobile App
-    participant API as Storage / Sync API
-    participant Host as PG Host Terminal
-    participant Command as AP Police Dashboard
-
-    Guest->>App: Long-press SOS (Silent or Standard)
-    App->>API: Package location data, property ID & guest info
-    API->>Host: Display critical alarm screen
-    API->>Command: Add red Alert Card to emergency feed
-    Note over Command: Visual alert flashes in AP Police command room
-    Command->>Command: Locate PG coordinates on Leaflet Map
-    Command->>Command: Dispatch Patrol Unit (Assigned Officer)
-    Command->>API: Update status to "Dispatch Active"
-```
+### 🏨 Host/Owner Workspace Routes (`app/(owner)`)
+*   `dashboard.tsx`: Main dashboard indicating total properties, current occupancy percentage, pending booking approvals, and active alarms.
+*   `properties.tsx` & `property/[id].tsx`: Property listing catalog and room inventory manager.
+*   `add-property.tsx`: Add a new PG property.
+*   `guests.tsx`: Gate check-in database and QR camera scanner.
+*   `compliance.tsx`: Document upload form for police clearances, fire permits, and CCTV system statuses.
+*   `analytics.tsx`: Financial charts, occupancy metrics, and growth indices.
+*   `alerts.tsx` & `alert-settings.tsx`: View active SOS alarms and customize notification targets.
+*   `staff.tsx` & `add-staff.tsx`: Staff profiles database.
+*   `kyc.tsx` & `bank.tsx`: Business entity registration and host payout setup.
+*   `settings.tsx`, `help.tsx`, `support.tsx`, & `terms.tsx`: Owner application configurations.
 
 ---
 
-## 📂 Codebase & Directory Layout
+## 🚀 Local Development & Setup
 
-### 1. `SafeStayAP` (Mobile Frontend Workspace)
-```
-SafeStayAP/
-├── .expo/                   # Local Expo compilation cache
-├── app/                     # file-based route mapping (expo-router)
-│   ├── (auth)/              # Authentication flow screens
-│   │   ├── guest-register.tsx
-│   │   ├── owner-register.tsx
-│   │   ├── login.tsx
-│   │   ├── otp.tsx
-│   │   ├── role-entry.tsx
-│   │   └── role-select.tsx
-│   ├── (guest)/             # Verified Guest Portal screens
-│   │   ├── booking/         # Dynamic booking screens
-│   │   ├── property/        # Property profiles & details
-│   │   ├── home.tsx         # Guest Dashboard
-│   │   ├── guest-pass.tsx   # QR Check-in Pass
-│   │   ├── kyc.tsx          # eKYC upload manager
-│   │   ├── sos.tsx          # Silent/Panic SOS dashboard
-│   │   └── stay.tsx         # Current booking stay tracker
-│   ├── (owner)/             # Property Host Portal screens
-│   │   ├── dashboard.tsx    # Owner's stats dashboard
-│   │   ├── guests.tsx       # Gate manifest, check-in scanner
-│   │   ├── compliance.tsx   # Police certificate uploads
-│   │   └── analytics.tsx    # occupancy / revenue trend charts
-│   ├── _layout.tsx          # Application navigation state router
-│   ├── onboarding.tsx       # Onboarding screen
-│   └── index.tsx            # Initial entry hub
-├── assets/                  # App icon, splash screen images
-├── src/                     # Core Business Logic & Shared Assets
-│   ├── components/
-│   │   ├── property/        # PropertyCard.tsx components
-│   │   └── ui/              # Atom components (Buttons, Inputs, Cards)
-│   ├── constants/
-│   │   └── theme.ts         # Color palette, shadows, borders
-│   ├── data/                # Seed mock databases (properties, bookings, users)
-│   ├── i18n/
-│   │   └── translations.ts  # English, Telugu, Hindi copy maps
-│   ├── services/
-│   │   ├── mockApi.ts       # Simulated network request latencies
-│   │   └── storage.ts       # AsyncStorage and SecureStore layers
-│   ├── store/
-│   │   ├── authStore.ts     # Global auth states
-│   │   ├── langStore.ts     # Language selection store
-│   │   └── themeStore.ts    # Application visual theme state
-│   └── types/
-│       └── index.ts         # System TypeScript models
-├── app.json                 # Expo configuration manifest
-├── babel.config.js          # Babel presets
-├── package.json             # NPM dependencies
-└── tsconfig.json            # Compiler settings
+### 1. Installation
+Navigate to the mobile application workspace directory and run npm installation:
+```bash
+# Navigate to workspace
+cd SafeStayAP
+
+# Install npm dependencies
+npm install
 ```
 
-### 2. `DASHBOARD_AP_POLICE` (Police Intel Workspace)
+### 2. Running Local Dev Server
+Start the Expo Metro bundler:
+```bash
+npx expo start
 ```
-DASHBOARD_AP_POLICE/
-├── index.html               # Main command room markup
-├── style.css                # Visual aesthetics, light/dark themes
-├── app.js                   # Map initialization & event logic
-├── data.js                  # Simulated database for AP districts
-└── vercel.json              # Vercel deployment routes config
+
+### 3. Launching Simulator/Device
+*   **Android Emulator**: Press **`a`** in the terminal runner (requires Android Studio Emulator running).
+*   **iOS Simulator**: Press **`i`** in the terminal runner (requires Xcode configured on macOS).
+*   **Physical Device (Expo Go)**: Scan the terminal QR code with your mobile camera (iOS) or Expo Go App (Android). Both devices must share the same local network subnet.
+
+### 4. EAS Preview APK Build
+To build a preview Android standalone APK:
+```bash
+npm run build:apk
 ```
 
 ---
 
-## 🚀 Getting Started & Installation
+## 🧪 Testing & Mock Scenarios
 
-### Prerequisite Environment
-To run these workspaces locally, make sure you have:
-*   [Node.js](https://nodejs.org/) (Version v18 or later recommended)
-*   [Git](https://git-scm.com/)
+The codebase includes simulated service responses to allow testing of key features without requiring active Supabase/Firebase network connections.
 
----
-
-### Running the Mobile Client (`SafeStayAP`)
-
-1.  **Navigate to the mobile directory**:
-    ```bash
-    cd SafeStayAP
-    ```
-
-2.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
-
-3.  **Start the Expo bundler**:
-    ```bash
-    npx expo start
-    ```
-
-4.  **Launch the simulator or scan the QR**:
-    *   Press **`a`** for Android Emulator (requires Android Studio configuration).
-    *   Press **`i`** for iOS Simulator (requires Xcode on macOS).
-    *   Scan the terminal QR code using the **Expo Go** application on an Android or iOS device (ensure your computer and mobile device are connected to the same local network subnet).
-
-5.  **Compile Preview Builds (EAS)**:
-    To compile a preview APK for testing on Android:
-    ```bash
-    npm run build:apk
-    ```
-
----
-
-### Running the AP Police Intelligence Dashboard (`DASHBOARD_AP_POLICE`)
-
-The dashboard is built using standard web technologies. It can be opened directly in your web browser or hosted locally.
-
-1.  **Direct Browser Access**:
-    Open the file `D:\AP PG POLICE PROJECT\SOFTWARE\AP_PG_V1_PROJECT\DASHBOARD_AP_POLICE\index.html` directly in Google Chrome, Microsoft Edge, or Firefox.
-
-2.  **Using a Local Static Server** (Recommended for maps):
-    If you have `npx` installed:
-    ```bash
-    cd DASHBOARD_AP_POLICE
-    npx serve .
-    ```
-    Alternatively, if you use Visual Studio Code, right-click `index.html` and select **Open with Live Server**.
-
----
-
-## 🧪 Testing & Demo Walkthrough
-
-The SafeStay AP environment includes built-in mock configurations to allow full end-to-end flows.
-
-### 🔐 Simulated Credentials
-*   **Phone Number**: Any valid 10-digit number.
+### 🔑 Demo Logins
+*   **Phone Number**: Input any 10-digit number.
 *   **OTP**: **`123456`** (Universal login bypass).
 
-### 👥 Multi-Role Testing Scenario
-1.  **Login as Guest**:
-    *   On the onboarding page, select the **Guest** role.
-    *   Enter a phone number, use the OTP `123456`, and complete registration.
-    *   Explore the dashboard, select **eKYC**, and submit a document upload.
-    *   Browse verified PG properties, select a room, and initiate a Booking.
-    *   Navigate to **Guest Pass** to view the generated QR Code.
+### 🚨 Watchlist Threat Alerts
+To test the AP Police Watchlist match flagging system:
+1.  Navigate to **Guest Panel** -> **My Travelers** or **Co-Guests**.
+2.  Add a traveler record using the name containing **`wanted`**, **`criminal`**, **`raju`**, or **`sunder`**.
+3.  The local service engine will automatically flag the occupant profile, returning a criminal database match and locking the status to "Flagged".
 
-2.  **Login as Host/Owner**:
-    *   Open another instance or log out, then choose the **Owner** role.
-    *   Log in using the owner role setup.
-    *   Access the **Guests** tab, view your check-ins, or simulate a scanner check-in.
-    *   Review the **Compliance** tab to view local municipal safety permits.
-
-3.  **Simulate Watchlist Threat Triggers**:
-    *   In the Guest App under **Saved Travelers** or **Co-Guests**, attempt to save or check-in a traveler with a name containing **`wanted`**, **`criminal`**, **`raju`**, or **`sunder`**.
-    *   The system will automatically flag the profile, showing: `Flagged in AP Crime Watchlist: Active warrant outstanding for Section 420 IPC`.
-    *   Open the **AP Police Intelligence Dashboard** to view the live threat alert appearing on the command screen.
-
-4.  **Simulate SOS Incident Dispatch**:
-    *   In the Guest App, tap the **SOS** button on the home screen.
-    *   Choose to trigger a Standard or Silent SOS.
-    *   The Police Web Dashboard will instantly trigger an audible alarm, displaying a critical alert card in the left column.
-    *   Click the card on the police dashboard to pinpoint the PG hostel location on the map, assign an officer, and update the status to "Resolved".
+### 🆘 Emergency Alarm Simulator
+1.  Navigate to **Guest Home** -> Tap **SOS**.
+2.  Select **Silent SOS** or **Standard SOS**.
+3.  The application will update the local alert state. Log in using the **Owner** profile to view the active SOS alert card with corresponding location metadata.
 
 ---
 
-## 📜 License & Compliance
+## 🛡️ Compliance & Security
 
-SafeStay AP is proprietary software developed in coordination with the Andhra Pradesh Police Department. 
-*   **Software Licensing**: MIT License
-*   **Information Security Standards**: Complies with Aadhaar eKYC storage regulations (no physical logs are stored unencrypted). All sensitive authentication keys utilize Android Keystore / iOS Keychain APIs via `expo-secure-store`.
+*   **Secure Storage**: Uses `expo-secure-store` to write security credentials, utilizing hardware-backed Keychain (iOS) and Keystore (Android) cryptography.
+*   **KYC File Privacy**: User document uploads (Aadhaar, PAN, Passport) are stored in secure Supabase Storage buckets with expiration parameters.
+*   **Real-time Auditing**: Includes background compliance monitoring to track CCTV camera runtimes, and local security guard registers.
