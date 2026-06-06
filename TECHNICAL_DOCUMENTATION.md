@@ -11,7 +11,7 @@ This document outlines the core technical architecture, data structures, state m
 4. [Authentication & Secure Storage](#4-authentication--secure-storage)
 5. [eKYC & Crime Watchlist System](#5-ekyc--crime-watchlist-system)
 6. [Emergency SOS Real-time Protocol](#6-emergency-sos-real-time-protocol)
-7. [Firebase Notification Architecture](#7-firebase-notification-architecture)
+7. [Real-time Notification Architecture](#7-real-time-notification-architecture)
 
 ---
 
@@ -25,15 +25,15 @@ SafeStay AP is built on a decoupled, serverless mobile architecture designed to 
        |  (Expo SDK 54 / React Native / TypeScript)  |
        +-------+-----------------------------+-------+
                |                             |
-  HTTPS / WebSocket Queries             FCM Push Tokens
+  HTTPS / WebSocket Queries & Real-time Alerts
                |                             |
-               v                             v
-+--------------+---------------+   +---------+---------+
-|     Supabase Cloud Services   |   |   Firebase Cloud  |
-|  - PostgreSQL Database       |   |      Messaging    |
-|  - Storage (KYC ID Buckets)  |   |  - Push Alerts    |
-|  - Auth (JWT Sessions)       |   |  - SOS Broadcasts |
-|  - Real-time Subscriptions  |   +-------------------+
+               v
++--------------+---------------+
+|     Supabase Cloud Services   |
+|  - PostgreSQL Database       |
+|  - Storage (KYC ID Buckets)  |
+|  - Auth (JWT & SMS OTP)      |
+|  - Real-time Subscriptions  |
 +--------------+---------------+
                |
         REST Sync Triggers
@@ -458,9 +458,9 @@ SOS events capture location coordinates using background device tasks, dispatchi
 
 ---
 
-## 7. Firebase Notification Architecture
+## 7. Real-time Notification Architecture
 
-The application handles notifications using Firebase Cloud Messaging (FCM). The notification service processes payloads based on the defined `type` field.
+The application handles notifications using Supabase Realtime Channels. The notification service processes payloads based on the defined `type` field.
 
 ### Notification Schema Definition
 
@@ -468,7 +468,7 @@ The application handles notifications using Firebase Cloud Messaging (FCM). The 
 Sent when a primary guest invites another user as a companion on a booking:
 ```json
 {
-  "to": "FCM_DEVICE_TOKEN",
+  "to": "REALTIME_CHANNEL_ID",
   "priority": "high",
   "notification": {
     "title": "SafeStay Co-Guest Stay Invitation",
@@ -486,7 +486,7 @@ Sent when a primary guest invites another user as a companion on a booking:
 Dispatched immediately to local police coordinators and host devices when a watchlist match occurs:
 ```json
 {
-  "to": "FCM_HOST_TOPIC_OR_POLICE_TOKEN",
+  "to": "REALTIME_CHANNEL_TOPIC",
   "priority": "high",
   "notification": {
     "title": "🚨 Watchlist Threat Flagged",
@@ -505,7 +505,7 @@ Dispatched immediately to local police coordinators and host devices when a watc
 Dispatched to local patrol networks and PG managers when an SOS is activated:
 ```json
 {
-  "to": "/topics/sos_district_vijayawada",
+  "to": "district_vijayawada_channel",
   "priority": "high",
   "notification": {
     "title": "🆘 EMERGENCY SOS TRIGGERED",

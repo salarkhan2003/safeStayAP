@@ -4,7 +4,6 @@
 [![Expo SDK](https://img.shields.io/badge/Expo-SDK%2054.0.0-000020?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev)
 [![React Native](https://img.shields.io/badge/React%20Native-0.81.5-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactnative.dev)
 [![Backend Supabase](https://img.shields.io/badge/Backend-Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
-[![Backend Firebase](https://img.shields.io/badge/Backend-Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
 [![State Zustand](https://img.shields.io/badge/State-Zustand-orange?style=for-the-badge)](https://github.com/pmndrs/zustand)
 [![Query TanStack](https://img.shields.io/badge/Query-TanStack%20v5-FF4154?style=for-the-badge&logo=reactquery&logoColor=white)](https://tanstack.com)
 
@@ -25,7 +24,7 @@ SafeStay AP is the official cross-platform mobile application developed in coord
 
 ## 🏗️ System Architecture
 
-The mobile application is architected around a React Native/Expo client that leverages local async engines for development and connects to a backend cluster utilizing Supabase and Firebase.
+The mobile application is architected around a React Native/Expo client that leverages local async engines for development and connects to a backend cluster utilizing Supabase.
 
 ### Mobile Client & Backend Integration Flow
 
@@ -49,8 +48,8 @@ graph TD
         SupaAuth["Supabase Authentication<br>(User session credentials)"]
         SupaDB["Supabase Real-Time DB<br>(Profiles, Bookings, Properties, Compliance)"]
         SupaStore["Supabase Storage Buckets<br>(KYC Documents & Profile Photos)"]
-        FCM["Firebase Cloud Messaging<br>(Push Notification Alert System)"]
-        FireAuth["Firebase Auth / OTP<br>(SMS verification gateways)"]
+        RT["Supabase Real-Time<br>(Push Notification Alert System)"]
+        SupaOTP["Supabase Auth / OTP<br>(SMS verification gateways)"]
         PoliceApi["AP Police API Gateway<br>(Automatic criminal record checks)"]
     end
 
@@ -63,8 +62,8 @@ graph TD
     API -.-> SupaAuth
     API -.-> SupaDB
     API -.-> SupaStore
-    API -.-> FCM
-    API -.-> FireAuth
+    API -.-> RT
+    API -.-> SupaOTP
     API -.-> PoliceApi
 ```
 
@@ -93,9 +92,9 @@ graph TD
     *   **Row-Level Security (RLS)**: Enforces access controls, ensuring hosts can only access listings they own, and guests can only view their active bookings.
     *   **Supabase Storage**: Secure object buckets for document storage (Aadhaar cards, PANs, Passports) with access limits.
     *   **Real-time Subscriptions**: Powers the instant SOS alert pipeline, dispatching real-time updates to hosts when an alarm is triggered.
-*   **Push Notifications & Gateway Auth (Firebase)**:
-    *   **Firebase Cloud Messaging (FCM)**: Configured to dispatch low-latency push notifications to devices for emergency alerts, guest confirmations, and co-guest requests.
-    *   **Firebase Authentication (Phone verification)**: Integrates Firebase OTP text messaging for phone confirmation.
+*   **Push Notifications & Gateway Auth (Supabase)**:
+    *   **Supabase Realtime Alerts**: Configured to dispatch low-latency alerts and push events to devices for emergency alarms, guest confirmations, and co-guest requests.
+    *   **Supabase OTP Authentication**: Integrates SMS OTP verification for phone confirmation.
 *   **AP Police Registry Gateway**:
     *   Automated REST hooks matching incoming profiles against AP Police criminal registries.
 
@@ -194,7 +193,7 @@ npm run build:apk
 
 ## 🧪 Testing & Mock Scenarios
 
-The codebase includes simulated service responses to allow testing of key features without requiring active Supabase/Firebase network connections.
+The codebase includes simulated service responses to allow testing of key features without requiring active Supabase network connections.
 
 ### 🔑 Demo Logins
 *   **Phone Number**: Input any 10-digit number.
